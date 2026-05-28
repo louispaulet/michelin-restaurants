@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "homepage": "https://louispaulet.github.io/michelin-restaurants/",
+  "homepage": "https://michelin.thefrenchartist.dev/",
   "scripts": {
     "dev": "vite",
     "data": "python3 scripts/generate_restaurants_csv.py",
@@ -11,7 +11,7 @@
     "build": "npm run refresh && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist --cname michelin.thefrenchartist.dev"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",

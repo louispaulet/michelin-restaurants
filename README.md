@@ -2,7 +2,7 @@
 
 A Vite + React + Tailwind CSS app for exploring Michelin-starred restaurants from Wikidata and Wikipedia on a searchable list and map.
 
-Live site: <https://louispaulet.github.io/michelin-restaurants/>
+Live site: <https://michelin.thefrenchartist.dev/>
 
 ## Data
 
