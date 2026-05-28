@@ -9,7 +9,7 @@ export function RestaurantProvider({ children }) {
   useEffect(() => {
     let cancelled = false;
 
-    fetch(`${import.meta.env.BASE_URL}data/restaurants.csv`)
+    fetch(`${import.meta.env.BASE_URL}data/restaurants.csv?v=${__DATA_VERSION__}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`Failed to load dataset: ${response.status}`);

@@ -10,7 +10,7 @@ export default function AboutPage() {
             <Database className="text-michelin" />
             <h3 className="mt-3 font-semibold">Generated data</h3>
             <p className="mt-2 text-sm text-stone-600">
-              The CSV is generated from Wikidata using Michelin star awards and Michelin Restaurants IDs.
+              The CSV is generated from Wikidata and expanded with Wikipedia's current Paris Michelin list.
             </p>
           </div>
           <div className="rounded border border-stone-200 p-4">
@@ -32,11 +32,12 @@ export default function AboutPage() {
           <p>
             Discovery uses Wikidata property <code className="rounded bg-stone-100 px-1">P166</code> for award received,
             Michelin star item <code className="rounded bg-stone-100 px-1">Q20824563</code>, and Michelin Restaurants ID{' '}
-            <code className="rounded bg-stone-100 px-1">P4160</code>.
+            <code className="rounded bg-stone-100 px-1">P4160</code>. Paris rows missing from Wikidata are filled from
+            Wikipedia's Michelin-starred restaurants list.
           </p>
           <p>
             Map tiles are provided by OpenStreetMap contributors. Restaurant metadata may lag Michelin's current guide
-            if upstream Wikidata records have not yet been updated.
+            if upstream Wikidata or Wikipedia records have not yet been updated.
           </p>
         </div>
       </div>

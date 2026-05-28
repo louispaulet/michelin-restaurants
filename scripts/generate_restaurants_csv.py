@@ -17,6 +17,7 @@ import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
+from html import unescape
 from pathlib import Path
 
 try:
@@ -27,6 +28,16 @@ except ImportError:  # pragma: no cover - exercised only when tqdm is not instal
 OUTFILE = Path(__file__).resolve().parents[1] / "public" / "data" / "restaurants.csv"
 USER_AGENT = "michelin-restaurants/0.1 (https://github.com/louispaulet/michelin-restaurants)"
 SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
+WIKIPEDIA_API_ENDPOINT = "https://en.wikipedia.org/w/api.php"
+WIKIPEDIA_PARIS_TITLE = "List of Michelin-starred restaurants in Paris"
+
+MICHELIN_ID_OVERRIDES = {
+    "Chakaiseki Akiyoshi": "ile-de-france/paris/restaurant/chakaiseiki-akiyoshi",
+    "L'Abysse au Pavillon Ledoyen": "ile-de-france/paris/restaurant/l-abysse-au-pavillon-ledoyen",
+    "L'Abysse Paris": "ile-de-france/paris/restaurant/l-abysse-paris",
+    "La Tour d'Argent": "ile-de-france/paris/restaurant/tour-d-argent",
+    "Sushi B": "ile-de-france/paris/restaurant/sushi-b514232",
+}
 
 FIELDS = [
     "id",
@@ -47,7 +58,7 @@ FIELDS = [
 
 
 def fetch_json(url: str, timeout: int = 45) -> dict:
-    req = urllib.request.Request(url, headers={"Accept": "application/sparql-results+json", "User-Agent": USER_AGENT})
+    req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": USER_AGENT})
     with urllib.request.urlopen(req, timeout=timeout) as response:
         return json.loads(response.read().decode("utf-8"))
 
@@ -67,6 +78,21 @@ def fetch_text(url: str, timeout: int = 12) -> str:
         timeout=timeout,
     )
     return result.stdout
+
+
+def fetch_wikipedia_wikitext(title: str) -> str:
+    params = {
+        "action": "query",
+        "prop": "revisions",
+        "titles": title,
+        "rvprop": "content",
+        "rvslots": "main",
+        "format": "json",
+        "formatversion": "2",
+    }
+    url = f"{WIKIPEDIA_API_ENDPOINT}?{urllib.parse.urlencode(params)}"
+    data = fetch_json(url)
+    return data["query"]["pages"][0]["revisions"][0]["slots"]["main"]["content"]
 
 
 def wikidata_query() -> list[dict[str, str]]:
@@ -146,6 +172,88 @@ def progress(iterable, **kwargs):
     return iterable
 
 
+def clean_wikitext(value: str) -> str:
+    value = re.sub(r"<ref[^>]*>.*?</ref>", "", value, flags=re.IGNORECASE | re.DOTALL)
+    value = re.sub(r"<ref[^/]*/>", "", value, flags=re.IGNORECASE)
+    value = re.sub(r"<[^>]+>", "", value)
+    value = re.sub(r"\{\{[^{}]*\}\}", "", value)
+    value = re.sub(r"\[\[[^|\]]+\|([^\]]+)\]\]", r"\1", value)
+    value = re.sub(r"\[\[([^\]]+)\]\]", r"\1", value)
+    value = value.replace("&nbsp;", " ")
+    value = value.replace("'''", "").replace("''", "")
+    value = unescape(value)
+    value = value.strip(" |")
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def star_count_from_wikitext(value: str) -> str:
+    match = re.search(r"stars\s*=\s*([^|}]+)", value)
+    if not match:
+        return ""
+    stars = match.group(1).strip().lower()
+    if stars in {"none", "closed"}:
+        return ""
+    return stars if stars in {"1", "2", "3"} else ""
+
+
+def michelin_id_for_paris_row(name: str) -> str:
+    if name in MICHELIN_ID_OVERRIDES:
+        return MICHELIN_ID_OVERRIDES[name]
+    return f"ile-de-france/paris/restaurant/{restaurant_slug(name, '')}"
+
+
+def parse_wikipedia_table_row(block: str) -> dict[str, str] | None:
+    match = re.search(r'!\s*scope="row"\s*\|([^\n]+)\n(.+)', block, flags=re.DOTALL)
+    if not match:
+        return None
+
+    name = clean_wikitext(match.group(1))
+    cells = []
+    for line in match.group(2).split("\n|"):
+        line = line.strip()
+        if not line:
+            continue
+        cells.extend(part.strip() for part in line.split("||"))
+
+    if len(cells) < 6:
+        return None
+
+    stars = star_count_from_wikitext(cells[-1])
+    if not stars:
+        return None
+
+    cuisine = clean_wikitext(cells[0])
+    location = clean_wikitext(cells[1])
+    michelin_id = michelin_id_for_paris_row(name)
+    return {
+        "id": restaurant_slug(name, michelin_id),
+        "name": name,
+        "stars": stars,
+        "cuisine": cuisine,
+        "address": "",
+        "arrondissement": f"{location}, France" if location else "Paris, France",
+        "country": "France",
+        "latitude": "",
+        "longitude": "",
+        "website": "",
+        "wikidata_url": "",
+        "michelin_id": michelin_id,
+        "michelin_url": f"https://guide.michelin.com/en/{michelin_id}",
+        "description": "Michelin-starred restaurant in Paris from Wikipedia's current Michelin list.",
+    }
+
+
+def rows_from_wikipedia_paris_list() -> list[dict[str, str]]:
+    wikitext = fetch_wikipedia_wikitext(WIKIPEDIA_PARIS_TITLE)
+    rows = []
+    for block in wikitext.split("|-"):
+        row = parse_wikipedia_table_row(block)
+        if row:
+            rows.append(row)
+    print(f"Found {len(rows)} current Paris restaurants from Wikipedia.")
+    return rows
+
+
 def extract_stars_from_michelin(michelin_id: str) -> str:
     if not michelin_id:
         return ""
@@ -205,7 +313,7 @@ def rows_from_wikidata() -> list[dict[str, str]]:
         address = value(item, "address")
         country = value(item, "countryLabel")
         area = infer_area(address, value(item, "locationLabel"), country)
-        michelin_url = f"https://guide.michelin.com/en/en/{michelin_id}"
+        michelin_url = f"https://guide.michelin.com/en/{michelin_id}"
         stars = extract_stars_from_michelin(michelin_id)
         rows.append(
             {
@@ -229,9 +337,35 @@ def rows_from_wikidata() -> list[dict[str, str]]:
     return rows
 
 
+def merge_rows(base_rows: list[dict[str, str]], extra_rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    rows = list(base_rows)
+    rows_by_id = {row["michelin_id"].strip("/"): row for row in rows if row["michelin_id"]}
+    rows_by_name = {row["name"].casefold(): row for row in rows if row["name"]}
+
+    added = 0
+    updated = 0
+    for row in extra_rows:
+        michelin_id = row["michelin_id"].strip("/")
+        existing = rows_by_id.get(michelin_id) or rows_by_name.get(row["name"].casefold())
+        if existing:
+            for key in ("stars", "cuisine"):
+                if row[key] and not existing[key]:
+                    existing[key] = row[key]
+                    updated += 1
+            continue
+        rows.append(row)
+        rows_by_id[michelin_id] = row
+        rows_by_name[row["name"].casefold()] = row
+        added += 1
+
+    print(f"Added {added} Paris restaurants from Wikipedia that were missing from Wikidata.")
+    print(f"Filled {updated} blank fields on existing Wikidata rows from Wikipedia.")
+    return rows
+
+
 def main() -> None:
     OUTFILE.parent.mkdir(parents=True, exist_ok=True)
-    rows = rows_from_wikidata()
+    rows = merge_rows(rows_from_wikidata(), rows_from_wikipedia_paris_list())
     rows.sort(key=lambda row: (row["name"].lower(), row["michelin_id"]))
     with OUTFILE.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS)

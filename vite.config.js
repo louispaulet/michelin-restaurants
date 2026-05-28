@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   base: '/michelin-restaurants/',
+  define: {
+    __DATA_VERSION__: JSON.stringify(Date.now()),
+  },
   plugins: [react()],
   test: {
     environment: 'jsdom',
