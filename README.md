@@ -15,13 +15,13 @@ The generator first queries Wikidata for restaurants that:
 - have `award received` (`P166`) = `Michelin star` (`Q20824563`)
 - have a `Michelin Restaurants ID` (`P4160`)
 
-It then tries to enrich current 1/2/3-star tiers from Michelin Guide pages using the Michelin ID. After that, it merges current Paris starred restaurants from Wikipedia's Paris Michelin list to cover restaurants that have no Wikidata Michelin ID yet, such as Jin.
+It then tries to enrich current 1/2/3-star tiers from Michelin Guide pages using the Michelin ID. After that, it merges current Paris starred restaurants from Wikipedia's Paris Michelin list to cover restaurants that have no Wikidata Michelin ID yet, such as Jin. Restaurant addresses and coordinates are filled from Michelin's public restaurant search index, with OpenStreetMap Nominatim as a fallback for unmatched records.
 
 Current limits:
 
 - Global discovery still depends on Wikidata records having both `award received` = `Michelin star` and `P4160`.
 - Paris coverage is broader because it also uses Wikipedia's current Paris Michelin list.
-- Wikipedia fallback rows may lack address, coordinates, website, and Wikidata links.
+- Wikipedia fallback rows may still lack Wikidata links.
 - Some Michelin IDs are inferred from names, with overrides for known non-obvious IDs such as `sushi-b514232`.
 - Wikidata star tiers are best effort because Michelin pages are parsed from public HTML.
 - The CSV is static until `make data` is run manually or `make refresh` creates a missing file.
