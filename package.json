@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "homepage": "https://michelin.thefrenchartist.dev/",
+  "homepage": "http://michelin.thefrenchartist.dev/",
   "scripts": {
     "dev": "vite",
     "data": "python3 scripts/generate_restaurants_csv.py",
