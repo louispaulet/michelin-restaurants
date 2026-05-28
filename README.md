@@ -1,6 +1,6 @@
-# Michelin Restaurants Paris
+# Michelin Restaurants
 
-A Vite + React + Tailwind CSS app for exploring Michelin-starred restaurants in Paris on a searchable list and map.
+A Vite + React + Tailwind CSS app for exploring Michelin-starred restaurants from Wikidata on a searchable list and map.
 
 Live site: <https://louispaulet.github.io/michelin-restaurants/>
 
@@ -12,7 +12,6 @@ The generator queries Wikidata for restaurants that:
 
 - have `award received` (`P166`) = `Michelin star` (`Q20824563`)
 - have a `Michelin Restaurants ID` (`P4160`)
-- have coordinates near Paris, France
 
 It then tries to enrich current 1/2/3-star tiers from Michelin Guide pages using the Michelin ID.
 

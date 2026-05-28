@@ -39,7 +39,7 @@ export default function RestaurantFilters({ filters, onChange, cuisines, arrondi
           onChange={update('arrondissement')}
           className="h-11 rounded border border-stone-300 px-3 text-sm"
         >
-          <option value="all">All arrondissements</option>
+          <option value="all">All areas</option>
           {arrondissements.map((arrondissement) => (
             <option key={arrondissement} value={arrondissement}>
               {arrondissement}

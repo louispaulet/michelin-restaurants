@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Generate a CSV of Michelin-starred restaurants in Paris from Wikidata.
+"""Generate a CSV of Michelin-starred restaurants from Wikidata.
 
 The discovery query uses award received (P166) = Michelin star (Q20824563)
 and requires a Michelin Restaurants ID (P4160). Michelin pages are then
-best-effort enriched for current star tiers. Paris is constrained with the
-Paris-specific Michelin ID path.
+best-effort enriched for current star tiers.
 """
 
 from __future__ import annotations
@@ -31,6 +30,7 @@ FIELDS = [
     "cuisine",
     "address",
     "arrondissement",
+    "country",
     "latitude",
     "longitude",
     "website",
@@ -67,15 +67,15 @@ def fetch_text(url: str, timeout: int = 12) -> str:
 def wikidata_query() -> list[dict[str, str]]:
     query = """
 SELECT ?restaurant ?restaurantLabel ?restaurantDescription ?michelinId ?coord
-       ?address ?website ?cuisineLabel ?arrondissementLabel WHERE {
+       ?address ?website ?cuisineLabel ?locationLabel ?countryLabel WHERE {
   ?restaurant wdt:P166 wd:Q20824563;
               wdt:P4160 ?michelinId.
-  FILTER(STRSTARTS(?michelinId, "ile-de-france/paris/"))
   OPTIONAL { ?restaurant wdt:P625 ?coord. }
   OPTIONAL { ?restaurant wdt:P6375 ?address. }
   OPTIONAL { ?restaurant wdt:P856 ?website. }
   OPTIONAL { ?restaurant wdt:P2012 ?cuisine. }
-  OPTIONAL { ?restaurant wdt:P131 ?arrondissement. }
+  OPTIONAL { ?restaurant wdt:P131 ?location. }
+  OPTIONAL { ?restaurant wdt:P17 ?country. }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr". }
 }
 ORDER BY ?restaurantLabel
@@ -97,25 +97,42 @@ def parse_point(point: str) -> tuple[str, str]:
     return latitude, longitude
 
 
-def infer_arrondissement(address: str, label: str) -> str:
+def infer_paris_arrondissement(address: str, label: str) -> str:
     combined = f"{address} {label}"
     match = re.search(r"\b750(\d{2})\b", combined)
     if match:
         number = int(match.group(1))
         if 1 <= number <= 20:
             return f"{number}e"
+    if "paris" not in combined.lower():
+        return ""
     match = re.search(r"(\d{1,2})(?:st|nd|rd|th|er|e)\s+arr", combined, re.IGNORECASE)
     if match:
         number = int(match.group(1))
         if 1 <= number <= 20:
             return f"{number}e"
-    return label.replace(" arrondissement of Paris", "e").replace("Paris ", "")
+    arrondissement = label.replace(" arrondissement of Paris", "e").replace("Paris ", "")
+    return arrondissement if arrondissement != label else ""
+
+
+def infer_area(address: str, location: str, country: str) -> str:
+    paris_arrondissement = infer_paris_arrondissement(address, location)
+    if paris_arrondissement:
+        return ", ".join(part for part in [f"Paris {paris_arrondissement}", country] if part)
+    return ", ".join(part for part in [location, country] if part)
 
 
 def restaurant_slug(name: str, michelin_id: str) -> str:
     normalized = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
     slug = re.sub(r"[^a-z0-9]+", "-", normalized.lower()).strip("-")
     return slug or re.sub(r"[^a-z0-9]+", "-", michelin_id.lower()).strip("-")
+
+
+def name_from_michelin_id(michelin_id: str) -> str:
+    slug = michelin_id.rstrip("/").split("/")[-1]
+    slug = re.sub(r"\d+$", "", slug).strip("-")
+    words = [word for word in slug.split("-") if word]
+    return " ".join(word.capitalize() for word in words)
 
 
 def extract_stars_from_michelin(michelin_id: str) -> str:
@@ -164,15 +181,18 @@ def rows_from_wikidata() -> list[dict[str, str]]:
     rows = []
     seen = set()
     for item in wikidata_query():
-        michelin_id = value(item, "michelinId")
+        michelin_id = value(item, "michelinId").strip("/")
         name = value(item, "restaurantLabel")
+        if re.fullmatch(r"Q\d+", name):
+            name = name_from_michelin_id(michelin_id)
         if not name or michelin_id in seen:
             continue
         seen.add(michelin_id)
         latitude, longitude = parse_point(value(item, "coord"))
         address = value(item, "address")
-        arrondissement = infer_arrondissement(address, value(item, "arrondissementLabel"))
-        michelin_url = f"https://guide.michelin.com/fr/fr/{michelin_id}"
+        country = value(item, "countryLabel")
+        area = infer_area(address, value(item, "locationLabel"), country)
+        michelin_url = f"https://guide.michelin.com/en/en/{michelin_id}"
         stars = extract_stars_from_michelin(michelin_id)
         rows.append(
             {
@@ -181,7 +201,8 @@ def rows_from_wikidata() -> list[dict[str, str]]:
                 "stars": stars,
                 "cuisine": value(item, "cuisineLabel"),
                 "address": address,
-                "arrondissement": arrondissement,
+                "arrondissement": area,
+                "country": country,
                 "latitude": latitude,
                 "longitude": longitude,
                 "website": value(item, "website"),

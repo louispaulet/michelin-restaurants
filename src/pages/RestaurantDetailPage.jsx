@@ -43,10 +43,10 @@ export default function RestaurantDetailPage() {
                 <MapPin size={17} />
                 Address
               </dt>
-              <dd className="mt-2 text-stone-800">{restaurant.address || 'Paris, France'}</dd>
+              <dd className="mt-2 text-stone-800">{restaurant.address || 'Not listed'}</dd>
             </div>
             <div className="rounded border border-stone-200 p-4">
-              <dt className="text-sm font-semibold uppercase tracking-wide text-stone-500">Arrondissement</dt>
+              <dt className="text-sm font-semibold uppercase tracking-wide text-stone-500">Area</dt>
               <dd className="mt-2 text-stone-800">{restaurant.arrondissement || 'Not listed'}</dd>
             </div>
           </dl>

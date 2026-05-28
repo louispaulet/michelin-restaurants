@@ -27,7 +27,7 @@ function RestaurantMap({ restaurants }) {
       return;
     }
 
-    mapRef.current = L.map(nodeRef.current, { scrollWheelZoom: true }).setView([48.8566, 2.3522], 12);
+    mapRef.current = L.map(nodeRef.current, { scrollWheelZoom: true }).setView([48.8566, 2.3522], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors',
@@ -51,11 +51,11 @@ function RestaurantMap({ restaurants }) {
     if (layerRef.current.getLayers().length > 0) {
       mapRef.current.fitBounds(layerRef.current.getBounds().pad(0.16));
     } else {
-      mapRef.current.setView([48.8566, 2.3522], 12);
+      mapRef.current.setView([48.8566, 2.3522], 5);
     }
   }, [restaurants]);
 
-  return <div className="h-[520px] lg:h-[650px]" ref={nodeRef} aria-label="Paris Michelin restaurants map" />;
+  return <div className="h-[520px] lg:h-[650px]" ref={nodeRef} aria-label="Michelin restaurants map" />;
 }
 
 export default function MapPage() {
@@ -78,7 +78,7 @@ export default function MapPage() {
           <div>
             <h2 className="text-2xl font-semibold">Map</h2>
             <p className="text-stone-600">
-              {mappedRestaurants.length} restaurants with coordinates are visible on the Paris map.
+              {mappedRestaurants.length} restaurants with coordinates are visible on the map.
             </p>
           </div>
           <RestaurantFilters

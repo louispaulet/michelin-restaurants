@@ -32,7 +32,7 @@ export default function AboutPage() {
           <p>
             Discovery uses Wikidata property <code className="rounded bg-stone-100 px-1">P166</code> for award received,
             Michelin star item <code className="rounded bg-stone-100 px-1">Q20824563</code>, and Michelin Restaurants ID{' '}
-            <code className="rounded bg-stone-100 px-1">P4160</code>. Results are geographically constrained to Paris.
+            <code className="rounded bg-stone-100 px-1">P4160</code>.
           </p>
           <p>
             Map tiles are provided by OpenStreetMap contributors. Restaurant metadata may lag Michelin's current guide

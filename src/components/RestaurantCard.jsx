@@ -18,7 +18,7 @@ export default function RestaurantCard({ restaurant }) {
       </div>
       <p className="mt-4 flex gap-2 text-sm text-stone-700">
         <MapPin size={17} className="mt-0.5 shrink-0 text-michelin" />
-        <span>{restaurant.address || restaurant.arrondissement || 'Paris, France'}</span>
+        <span>{restaurant.address || restaurant.arrondissement || 'Location not listed'}</span>
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Link to={`/restaurants/${restaurant.id}`} className="rounded bg-ink px-3 py-2 text-sm font-medium text-white">

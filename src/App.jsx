@@ -24,8 +24,8 @@ export default function App() {
                   <Star size={22} fill="currentColor" />
                 </span>
                 <span>
-                  <span className="block text-lg font-semibold">Michelin Paris</span>
-                  <span className="block text-sm text-stone-600">Starred tables across the city</span>
+                  <span className="block text-lg font-semibold">Michelin Restaurants</span>
+                  <span className="block text-sm text-stone-600">Starred tables from Wikidata</span>
                 </span>
               </NavLink>
               <nav className="flex flex-wrap items-center gap-2">
@@ -50,9 +50,9 @@ export default function App() {
             <section className="border-b border-stone-200 bg-white">
               <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:px-8">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-michelin">Paris, France</p>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-michelin">Wikidata guide</p>
                   <h1 className="mt-2 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
-                    A map-first guide to Michelin-starred restaurants in Paris.
+                    A map-first guide to Michelin-starred restaurants around the world.
                   </h1>
                 </div>
                 <div className="grid gap-3 self-end sm:grid-cols-2">
