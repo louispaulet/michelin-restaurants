@@ -25,7 +25,9 @@ try:
 except ImportError:  # pragma: no cover - exercised only when tqdm is not installed.
     tqdm = None
 
-OUTFILE = Path(__file__).resolve().parents[1] / "public" / "data" / "restaurants.csv"
+ROOT = Path(__file__).resolve().parents[1]
+OUTFILE = ROOT / "public" / "data" / "restaurants.csv"
+DESCRIPTIONS_FILE = ROOT / "data" / "restaurant_descriptions.json"
 USER_AGENT = "michelin-restaurants/0.1 (https://github.com/louispaulet/michelin-restaurants)"
 MICHELIN_USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -703,6 +705,34 @@ def rows_from_wikidata() -> list[dict[str, str]]:
     return rows
 
 
+def load_generated_descriptions(path: Path = DESCRIPTIONS_FILE) -> dict[str, str]:
+    if not path.exists():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    descriptions: dict[str, str] = {}
+    for key, value in raw.items():
+        if isinstance(value, dict):
+            description = str(value.get("description") or "").strip()
+        else:
+            description = str(value or "").strip()
+        if description:
+            descriptions[str(key)] = description
+    return descriptions
+
+
+def apply_generated_descriptions(rows: list[dict[str, str]], descriptions: dict[str, str]) -> int:
+    updated = 0
+    for row in rows:
+        description = descriptions.get(row.get("id", ""))
+        if description and row.get("description") != description:
+            row["description"] = description
+            updated += 1
+    return updated
+
+
 def merge_rows(base_rows: list[dict[str, str]], extra_rows: list[dict[str, str]]) -> list[dict[str, str]]:
     rows = list(base_rows)
     rows_by_id = {row["michelin_id"].strip("/"): row for row in rows if row["michelin_id"]}
@@ -734,6 +764,9 @@ def main() -> None:
     merged_rows = merge_rows(rows_from_wikidata(), rows_from_wikipedia_paris_list())
     rows = [enrich_row_from_michelin(row) for row in progress(merged_rows, desc="Filling Michelin addresses", unit="restaurant")]
     rows = [row for row in rows if is_paris_france_row(row)]
+    updated_descriptions = apply_generated_descriptions(rows, load_generated_descriptions())
+    if updated_descriptions:
+        print(f"Applied {updated_descriptions} generated descriptions from {DESCRIPTIONS_FILE}.")
     rows.sort(key=lambda row: (row["name"].lower(), row["michelin_id"]))
     with OUTFILE.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS)

@@ -51,7 +51,12 @@ export default function RestaurantDetailPage() {
             </div>
           </dl>
 
-          {restaurant.description && <p className="mt-6 text-stone-700">{restaurant.description}</p>}
+          {restaurant.description && (
+            <section className="mt-8 rounded border border-stone-200 bg-stone-50 p-5">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-stone-500">About this restaurant</h3>
+              <p className="mt-3 leading-7 text-stone-700">{restaurant.description}</p>
+            </section>
+          )}
 
           <div className="mt-8 flex flex-wrap gap-3">
             {restaurant.website && (
