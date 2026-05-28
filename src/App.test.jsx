@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.jsx';
 
@@ -23,5 +23,13 @@ describe('App', () => {
     render(<App />);
     await waitFor(() => expect(screen.getByText('Epicure')).toBeInTheDocument());
     expect(screen.getByText(/Showing 1 of 1 restaurants/)).toBeInTheDocument();
+
+    const footer = screen.getByRole('contentinfo');
+    expect(within(footer).getByRole('link', { name: /homepage/i })).toBeInTheDocument();
+    expect(within(footer).getByRole('link', { name: /about/i })).toBeInTheDocument();
+    expect(within(footer).getByRole('link', { name: /github project/i })).toHaveAttribute(
+      'href',
+      'https://github.com/louispaulet/michelin-restaurants',
+    );
   });
 });

@@ -16,7 +16,7 @@ export default function App() {
   return (
     <RestaurantProvider>
       <HashRouter>
-        <div className="min-h-screen bg-paper text-ink">
+        <div className="flex min-h-screen flex-col bg-paper text-ink">
           <header className="border-b border-stone-200 bg-white/90 backdrop-blur">
             <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
               <NavLink to="/restaurants" className="flex items-center gap-3">
@@ -46,7 +46,7 @@ export default function App() {
             </div>
           </header>
 
-          <main>
+          <main className="flex-1">
             <section className="border-b border-stone-200 bg-white">
               <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:px-8">
                 <div>
@@ -83,6 +83,28 @@ export default function App() {
               <Route path="*" element={<Navigate to="/restaurants" replace />} />
             </Routes>
           </main>
+
+          <footer className="border-t border-stone-200 bg-white">
+            <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 text-sm text-stone-600 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+              <p className="font-medium text-ink">Michelin Restaurants</p>
+              <nav className="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Footer navigation">
+                <NavLink to="/restaurants" className="transition hover:text-ink">
+                  Homepage
+                </NavLink>
+                <NavLink to="/about" className="transition hover:text-ink">
+                  About
+                </NavLink>
+                <a
+                  href="https://github.com/louispaulet/michelin-restaurants"
+                  className="transition hover:text-ink"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  GitHub project
+                </a>
+              </nav>
+            </div>
+          </footer>
         </div>
       </HashRouter>
     </RestaurantProvider>
