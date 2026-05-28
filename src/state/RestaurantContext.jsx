@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { normalizeRestaurant, parseCsv } from '../data/csv.js';
+import { isParisFranceRestaurant, normalizeRestaurant, parseCsv } from '../data/csv.js';
 
 const RestaurantContext = createContext(null);
 
@@ -16,7 +16,7 @@ export function RestaurantProvider({ children }) {
         }
         return response.text();
       })
-      .then((text) => parseCsv(text).map(normalizeRestaurant))
+      .then((text) => parseCsv(text).filter(isParisFranceRestaurant).map(normalizeRestaurant))
       .then((restaurants) => {
         if (!cancelled) {
           setState({ status: 'ready', restaurants, error: null });

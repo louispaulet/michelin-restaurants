@@ -30,6 +30,7 @@ USER_AGENT = "michelin-restaurants/0.1 (https://github.com/louispaulet/michelin-
 SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
 WIKIPEDIA_API_ENDPOINT = "https://en.wikipedia.org/w/api.php"
 WIKIPEDIA_PARIS_TITLE = "List of Michelin-starred restaurants in Paris"
+PARIS_MICHELIN_PREFIX = "ile-de-france/paris/restaurant/"
 
 MICHELIN_ID_OVERRIDES = {
     "Chakaiseki Akiyoshi": "ile-de-france/paris/restaurant/chakaiseiki-akiyoshi",
@@ -100,7 +101,8 @@ def wikidata_query() -> list[dict[str, str]]:
 SELECT ?restaurant ?restaurantLabel ?restaurantDescription ?michelinId ?coord
        ?address ?website ?cuisineLabel ?locationLabel ?countryLabel WHERE {
   ?restaurant wdt:P166 wd:Q20824563;
-              wdt:P4160 ?michelinId.
+              wdt:P4160 ?michelinId;
+              wdt:P17 wd:Q142.
   OPTIONAL { ?restaurant wdt:P625 ?coord. }
   OPTIONAL { ?restaurant wdt:P6375 ?address. }
   OPTIONAL { ?restaurant wdt:P856 ?website. }
@@ -200,6 +202,14 @@ def michelin_id_for_paris_row(name: str) -> str:
     if name in MICHELIN_ID_OVERRIDES:
         return MICHELIN_ID_OVERRIDES[name]
     return f"ile-de-france/paris/restaurant/{restaurant_slug(name, '')}"
+
+
+def is_paris_france_row(row: dict[str, str]) -> bool:
+    if row.get("country") != "France":
+        return False
+    michelin_id = row.get("michelin_id", "").strip("/")
+    location_text = " ".join([row.get("address", ""), row.get("arrondissement", ""), row.get("michelin_url", "")])
+    return michelin_id.startswith(PARIS_MICHELIN_PREFIX) or re.search(r"\bparis\b", location_text, re.IGNORECASE)
 
 
 def parse_wikipedia_table_row(block: str) -> dict[str, str] | None:
@@ -365,7 +375,7 @@ def merge_rows(base_rows: list[dict[str, str]], extra_rows: list[dict[str, str]]
 
 def main() -> None:
     OUTFILE.parent.mkdir(parents=True, exist_ok=True)
-    rows = merge_rows(rows_from_wikidata(), rows_from_wikipedia_paris_list())
+    rows = [row for row in merge_rows(rows_from_wikidata(), rows_from_wikipedia_paris_list()) if is_paris_france_row(row)]
     rows.sort(key=lambda row: (row["name"].lower(), row["michelin_id"]))
     with OUTFILE.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS)
