@@ -19,6 +19,11 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+try:
+    from tqdm import tqdm
+except ImportError:  # pragma: no cover - exercised only when tqdm is not installed.
+    tqdm = None
+
 OUTFILE = Path(__file__).resolve().parents[1] / "public" / "data" / "restaurants.csv"
 USER_AGENT = "michelin-restaurants/0.1 (https://github.com/louispaulet/michelin-restaurants)"
 SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
@@ -135,6 +140,12 @@ def name_from_michelin_id(michelin_id: str) -> str:
     return " ".join(word.capitalize() for word in words)
 
 
+def progress(iterable, **kwargs):
+    if tqdm:
+        return tqdm(iterable, **kwargs)
+    return iterable
+
+
 def extract_stars_from_michelin(michelin_id: str) -> str:
     if not michelin_id:
         return ""
@@ -180,7 +191,9 @@ def extract_stars_from_michelin(michelin_id: str) -> str:
 def rows_from_wikidata() -> list[dict[str, str]]:
     rows = []
     seen = set()
-    for item in wikidata_query():
+    items = wikidata_query()
+    print(f"Found {len(items)} Wikidata candidates.")
+    for item in progress(items, desc="Enriching Michelin pages", unit="restaurant"):
         michelin_id = value(item, "michelinId").strip("/")
         name = value(item, "restaurantLabel")
         if re.fullmatch(r"Q\d+", name):

@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "data": "python3 scripts/generate_restaurants_csv.py",
-    "build": "npm run data && vite build",
+    "refresh": "test -s public/data/restaurants.csv || npm run data",
+    "build": "npm run refresh && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "deploy": "npm run build && gh-pages -d dist"

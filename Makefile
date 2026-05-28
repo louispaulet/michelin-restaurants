@@ -1,4 +1,4 @@
-.PHONY: up kill test build deploy data
+.PHONY: up kill test build deploy data refresh
 
 PORT ?= 5173
 
@@ -15,6 +15,13 @@ kill:
 
 data:
 	python3 scripts/generate_restaurants_csv.py
+
+refresh:
+	@if [ -s public/data/restaurants.csv ]; then \
+		echo "Restaurant list already exists at public/data/restaurants.csv; skipping refresh."; \
+	else \
+		$(MAKE) data; \
+	fi
 
 test:
 	npm test
