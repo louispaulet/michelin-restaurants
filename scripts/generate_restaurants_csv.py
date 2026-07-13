@@ -1,778 +1,508 @@
 #!/usr/bin/env python3
-"""Generate a CSV of Michelin-starred restaurants from Wikidata.
-
-The discovery query uses award received (P166) = Michelin star (Q20824563)
-and requires a Michelin Restaurants ID (P4160). Michelin pages are then
-best-effort enriched for current star tiers.
-"""
+"""Generate an atomic, Wikidata-only Michelin restaurant dataset."""
 
 from __future__ import annotations
 
 import csv
 import json
+import os
 import re
-import subprocess
+import tempfile
 import time
 import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
-from html import unescape
+from collections import defaultdict, deque
+from datetime import datetime, timezone
 from pathlib import Path
-
-try:
-    from tqdm import tqdm
-except ImportError:  # pragma: no cover - exercised only when tqdm is not installed.
-    tqdm = None
+from typing import Any, Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
+QUERY_PATH = ROOT / "scripts" / "wikidata_restaurants.sparql"
 OUTFILE = ROOT / "public" / "data" / "restaurants.csv"
-DESCRIPTIONS_FILE = ROOT / "data" / "restaurant_descriptions.json"
-USER_AGENT = "michelin-restaurants/0.1 (https://github.com/louispaulet/michelin-restaurants)"
-MICHELIN_USER_AGENT = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-)
+METADATA_FILE = ROOT / "public" / "data" / "metadata.json"
 SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
-WIKIPEDIA_API_ENDPOINT = "https://en.wikipedia.org/w/api.php"
-WIKIPEDIA_PARIS_TITLE = "List of Michelin-starred restaurants in Paris"
-PARIS_MICHELIN_PREFIX = "ile-de-france/paris/restaurant/"
-MICHELIN_BASE_URL = "https://guide.michelin.com"
-ALGOLIA_APP_ID = "8NVHRD7ONV"
-ALGOLIA_SEARCH_KEY = "3222e669cf890dc73fa5f38241117ba5"
-ALGOLIA_RESTAURANT_INDEX = "prod-restaurants-en"
-ALGOLIA_QUERY_ENDPOINT = f"https://{ALGOLIA_APP_ID}-dsn.algolia.net/1/indexes/{ALGOLIA_RESTAURANT_INDEX}/query"
-ALGOLIA_CACHE: dict[str, dict[str, object]] = {}
-NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/search"
-NOMINATIM_CACHE: dict[str, dict[str, object]] = {}
-
-MICHELIN_ID_OVERRIDES = {
-    "Chakaiseki Akiyoshi": "ile-de-france/paris/restaurant/chakaiseiki-akiyoshi",
-    "L'Abysse au Pavillon Ledoyen": "ile-de-france/paris/restaurant/l-abysse-au-pavillon-ledoyen",
-    "L'Abysse Paris": "ile-de-france/paris/restaurant/l-abysse-paris",
-    "La Tour d'Argent": "ile-de-france/paris/restaurant/tour-d-argent",
-    "Sushi B": "ile-de-france/paris/restaurant/sushi-b514232",
-}
-
-MICHELIN_SEARCH_NAME_OVERRIDES = {
-    "L'Abysse au Pavillon Ledoyen": "L'Abysse Paris",
-}
+WIKIDATA_API_ENDPOINT = "https://www.wikidata.org/w/api.php"
+USER_AGENT = "michelin-restaurants/0.2 (https://github.com/louispaulet/michelin-restaurants)"
+MICHELIN_BASE_URL = "https://guide.michelin.com/en"
+CITY_ITEM = "Q515"
+ENTITY_BATCH_SIZE = 50
 
 FIELDS = [
     "id",
+    "wikidata_id",
     "name",
-    "stars",
+    "description",
     "cuisine",
     "address",
-    "arrondissement",
+    "locality",
+    "locality_wikidata_id",
+    "city",
+    "city_slug",
+    "city_wikidata_id",
     "country",
+    "country_slug",
+    "country_wikidata_id",
     "latitude",
     "longitude",
     "website",
-    "wikidata_url",
     "michelin_id",
     "michelin_url",
-    "description",
 ]
 
 
-def fetch_json(url: str, timeout: int = 45) -> dict:
-    req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=timeout) as response:
-        return json.loads(response.read().decode("utf-8"))
+def fetch_json(url: str, *, timeout: int = 90, attempts: int = 3) -> dict[str, Any]:
+    last_error: Exception | None = None
+    for attempt in range(attempts):
+        request = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": USER_AGENT})
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+            last_error = error
+            if attempt + 1 < attempts:
+                time.sleep(2**attempt)
+    raise RuntimeError(f"Wikidata request failed after {attempts} attempts: {last_error}") from last_error
 
 
-def fetch_text(url: str, timeout: int = 20) -> str:
-    headers = {"User-Agent": MICHELIN_USER_AGENT, "Accept-Language": "en,fr;q=0.9"}
-    req = urllib.request.Request(url, headers=headers)
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as response:
-            text = response.read().decode("utf-8", errors="ignore")
-        if text:
-            return text
-    except (urllib.error.URLError, TimeoutError):
-        pass
-
-    result = subprocess.run(
-        ["curl", "-Ls", "--compressed", "-A", USER_AGENT, url],
-        check=False,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-    )
-    if result.stdout:
-        return result.stdout
-
-    result = subprocess.run(
-        ["curl", "-Ls", "--compressed", "-A", MICHELIN_USER_AGENT, url],
-        check=False,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-    )
-    return result.stdout
-
-
-def fetch_wikipedia_wikitext(title: str) -> str:
-    params = {
-        "action": "query",
-        "prop": "revisions",
-        "titles": title,
-        "rvprop": "content",
-        "rvslots": "main",
-        "format": "json",
-        "formatversion": "2",
-    }
-    url = f"{WIKIPEDIA_API_ENDPOINT}?{urllib.parse.urlencode(params)}"
-    data = fetch_json(url)
-    return data["query"]["pages"][0]["revisions"][0]["slots"]["main"]["content"]
-
-
-def fetch_algolia_hits(query: str, hits_per_page: int = 5) -> list[dict[str, object]]:
-    params = urllib.parse.urlencode({"query": query, "hitsPerPage": hits_per_page})
-    body = json.dumps({"params": params}).encode("utf-8")
-    req = urllib.request.Request(
-        ALGOLIA_QUERY_ENDPOINT,
-        data=body,
-        headers={
-            "Content-Type": "application/json",
-            "Origin": MICHELIN_BASE_URL,
-            "Referer": f"{MICHELIN_BASE_URL}/",
-            "User-Agent": MICHELIN_USER_AGENT,
-            "X-Algolia-Application-Id": ALGOLIA_APP_ID,
-            "X-Algolia-API-Key": ALGOLIA_SEARCH_KEY,
-        },
-    )
-    with urllib.request.urlopen(req, timeout=20) as response:
-        data = json.loads(response.read().decode("utf-8"))
-    return data.get("hits", [])
-
-
-def fetch_nominatim_hit(query: str) -> dict[str, object]:
-    cache_key = normalized_name(query)
-    if cache_key in NOMINATIM_CACHE:
-        return NOMINATIM_CACHE[cache_key]
-
-    params = urllib.parse.urlencode(
-        {"q": query, "format": "jsonv2", "limit": 1, "addressdetails": 1, "countrycodes": "fr"}
-    )
-    req = urllib.request.Request(
-        f"{NOMINATIM_ENDPOINT}?{params}",
-        headers={"User-Agent": USER_AGENT, "Accept-Language": "en,fr;q=0.9"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=20) as response:
-            data = json.loads(response.read().decode("utf-8"))
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
-        data = []
-    time.sleep(1.1)
-
-    NOMINATIM_CACHE[cache_key] = data[0] if data else {}
-    return NOMINATIM_CACHE[cache_key]
-
-
-def wikidata_query() -> list[dict[str, str]]:
-    query = """
-SELECT ?restaurant ?restaurantLabel ?restaurantDescription ?michelinId ?coord
-       ?address ?website ?cuisineLabel ?locationLabel ?countryLabel WHERE {
-  ?restaurant wdt:P166 wd:Q20824563;
-              wdt:P4160 ?michelinId;
-              wdt:P17 wd:Q142.
-  OPTIONAL { ?restaurant wdt:P625 ?coord. }
-  OPTIONAL { ?restaurant wdt:P6375 ?address. }
-  OPTIONAL { ?restaurant wdt:P856 ?website. }
-  OPTIONAL { ?restaurant wdt:P2012 ?cuisine. }
-  OPTIONAL { ?restaurant wdt:P131 ?location. }
-  OPTIONAL { ?restaurant wdt:P17 ?country. }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr". }
-}
-ORDER BY ?restaurantLabel
-"""
+def fetch_sparql(query: str) -> list[dict[str, dict[str, str]]]:
     url = f"{SPARQL_ENDPOINT}?{urllib.parse.urlencode({'query': query, 'format': 'json'})}"
-    data = fetch_json(url)
-    return data["results"]["bindings"]
+    data = fetch_json(url, timeout=120)
+    try:
+        return data["results"]["bindings"]
+    except (KeyError, TypeError) as error:
+        raise RuntimeError("Wikidata returned an invalid SPARQL response") from error
 
 
-def value(row: dict, key: str) -> str:
-    return row.get(key, {}).get("value", "").strip()
+def chunks(values: Iterable[str], size: int) -> Iterable[list[str]]:
+    values = list(values)
+    for index in range(0, len(values), size):
+        yield values[index : index + size]
+
+
+def fetch_entities(ids: Iterable[str]) -> dict[str, dict[str, Any]]:
+    entities: dict[str, dict[str, Any]] = {}
+    clean_ids = sorted({entity_id for entity_id in ids if re.fullmatch(r"Q\d+", entity_id)})
+    for batch in chunks(clean_ids, ENTITY_BATCH_SIZE):
+        params = {
+            "action": "wbgetentities",
+            "ids": "|".join(batch),
+            "props": "claims|labels",
+            "languages": "en|fr",
+            "format": "json",
+            "formatversion": "2",
+        }
+        data = fetch_json(f"{WIKIDATA_API_ENDPOINT}?{urllib.parse.urlencode(params)}", timeout=60)
+        returned = data.get("entities")
+        if not isinstance(returned, dict):
+            raise RuntimeError("Wikidata returned an invalid entity response")
+        entities.update({str(key): value for key, value in returned.items() if isinstance(value, dict)})
+    return entities
+
+
+def expand_entity_graph(seed_ids: Iterable[str], follow_properties: tuple[str, ...]) -> dict[str, dict[str, Any]]:
+    cache: dict[str, dict[str, Any]] = {}
+    frontier = {entity_id for entity_id in seed_ids if re.fullmatch(r"Q\d+", entity_id)}
+    while frontier:
+        fetched = fetch_entities(frontier)
+        cache.update(fetched)
+        next_ids: set[str] = set()
+        for entity in fetched.values():
+            for property_id in follow_properties:
+                next_ids.update(statement_entity_ids(entity, property_id))
+        frontier = next_ids - set(cache)
+    return cache
+
+
+def value(binding: dict[str, dict[str, str]], key: str) -> str:
+    return binding.get(key, {}).get("value", "").strip()
+
+
+def entity_id(uri_or_id: str) -> str:
+    candidate = uri_or_id.rstrip("/").split("/")[-1]
+    return candidate if re.fullmatch(r"Q\d+", candidate) else ""
 
 
 def parse_point(point: str) -> tuple[str, str]:
-    match = re.search(r"Point\(([-0-9.]+) ([-0-9.]+)\)", point)
+    match = re.fullmatch(r"Point\(([-0-9.]+) ([-0-9.]+)\)", point.strip())
     if not match:
         return "", ""
     longitude, latitude = match.groups()
     return latitude, longitude
 
 
-def infer_paris_arrondissement(address: str, label: str) -> str:
-    combined = f"{address} {label}"
-    match = re.search(r"\b750(\d{2})\b", combined)
-    if match:
-        number = int(match.group(1))
-        if 1 <= number <= 20:
-            return f"{number}e"
-    if "paris" not in combined.lower():
+def slugify(value_to_slug: str) -> str:
+    normalized = unicodedata.normalize("NFKD", value_to_slug).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-z0-9]+", "-", normalized.lower()).strip("-")
+
+
+def label_for_entity(entity_id_value: str, entities: dict[str, dict[str, Any]]) -> str:
+    labels = entities.get(entity_id_value, {}).get("labels")
+    if not isinstance(labels, dict):
         return ""
-    match = re.search(r"(\d{1,2})(?:st|nd|rd|th|er|e)\s+arr", combined, re.IGNORECASE)
-    if match:
-        number = int(match.group(1))
-        if 1 <= number <= 20:
-            return f"{number}e"
-    arrondissement = label.replace(" arrondissement of Paris", "e").replace("Paris ", "")
-    return arrondissement if arrondissement != label else ""
-
-
-def infer_area(address: str, location: str, country: str) -> str:
-    paris_arrondissement = infer_paris_arrondissement(address, location)
-    if paris_arrondissement:
-        return ", ".join(part for part in [f"Paris {paris_arrondissement}", country] if part)
-    return ", ".join(part for part in [location, country] if part)
-
-
-def restaurant_slug(name: str, michelin_id: str) -> str:
-    normalized = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
-    slug = re.sub(r"[^a-z0-9]+", "-", normalized.lower()).strip("-")
-    return slug or re.sub(r"[^a-z0-9]+", "-", michelin_id.lower()).strip("-")
-
-
-def name_from_michelin_id(michelin_id: str) -> str:
-    slug = michelin_id.rstrip("/").split("/")[-1]
-    slug = re.sub(r"\d+$", "", slug).strip("-")
-    words = [word for word in slug.split("-") if word]
-    return " ".join(word.capitalize() for word in words)
-
-
-def progress(iterable, **kwargs):
-    if tqdm:
-        return tqdm(iterable, **kwargs)
-    return iterable
-
-
-def clean_wikitext(value: str) -> str:
-    value = re.sub(r"<ref[^>]*>.*?</ref>", "", value, flags=re.IGNORECASE | re.DOTALL)
-    value = re.sub(r"<ref[^/]*/>", "", value, flags=re.IGNORECASE)
-    value = re.sub(r"<[^>]+>", "", value)
-    value = re.sub(r"\{\{[^{}]*\}\}", "", value)
-    value = re.sub(r"\[\[[^|\]]+\|([^\]]+)\]\]", r"\1", value)
-    value = re.sub(r"\[\[([^\]]+)\]\]", r"\1", value)
-    value = value.replace("&nbsp;", " ")
-    value = value.replace("'''", "").replace("''", "")
-    value = unescape(value)
-    value = value.strip(" |")
-    return re.sub(r"\s+", " ", value).strip()
-
-
-def star_count_from_wikitext(value: str) -> str:
-    match = re.search(r"stars\s*=\s*([^|}]+)", value)
-    if not match:
-        return ""
-    stars = match.group(1).strip().lower()
-    if stars in {"none", "closed"}:
-        return ""
-    return stars if stars in {"1", "2", "3"} else ""
-
-
-def michelin_id_for_paris_row(name: str) -> str:
-    if name in MICHELIN_ID_OVERRIDES:
-        return MICHELIN_ID_OVERRIDES[name]
-    return f"ile-de-france/paris/restaurant/{restaurant_slug(name, '')}"
-
-
-def michelin_url(michelin_id: str, language: str = "en") -> str:
-    return f"{MICHELIN_BASE_URL}/{language}/{michelin_id.strip('/')}"
-
-
-def normalized_name(value: str) -> str:
-    normalized = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
-    return re.sub(r"[^a-z0-9]+", " ", normalized.lower()).strip()
-
-
-def normalized_name_variants(value: str) -> set[str]:
-    name = normalized_name(value)
-    variants = {name} if name else set()
-    for prefix in ("restaurant ", "le restaurant "):
-        if name.startswith(prefix):
-            variants.add(name.removeprefix(prefix).strip())
-    return {variant for variant in variants if variant}
-
-
-def has_matching_name(expected: str, actual: str) -> bool:
-    expected_variants = normalized_name_variants(expected)
-    actual_variants = normalized_name_variants(actual)
-    if not expected_variants or not actual_variants:
-        return True
-    if expected_variants & actual_variants:
-        return True
-    return any(
-        (len(expected_normalized.split()) > 1 and expected_normalized in actual_normalized)
-        or actual_normalized.startswith(f"{expected_normalized} ")
-        for expected_normalized in expected_variants
-        for actual_normalized in actual_variants
-    )
-
-
-def json_ld_values(value: object) -> list[dict]:
-    if isinstance(value, dict):
-        values = [value]
-        graph = value.get("@graph")
-        if isinstance(graph, list):
-            values.extend(item for item in graph if isinstance(item, dict))
-        return values
-    if isinstance(value, list):
-        return [item for item in value if isinstance(item, dict)]
-    return []
-
-
-def extract_michelin_json_ld(html: str) -> dict[str, object]:
-    for block in re.findall(
-        r"<script[^>]+type=[\"']application/ld\+json[\"'][^>]*>(.*?)</script>",
-        html,
-        flags=re.IGNORECASE | re.DOTALL,
-    ):
-        try:
-            data = json.loads(unescape(block.strip()))
-        except json.JSONDecodeError:
-            continue
-        for item in json_ld_values(data):
-            item_type = item.get("@type")
-            if item_type == "Restaurant" or (isinstance(item_type, list) and "Restaurant" in item_type):
-                return item
-    return {}
-
-
-def country_name(value: str) -> str:
-    if value.upper() in {"FR", "FRA"}:
-        return "France"
-    return value
-
-
-def format_michelin_address(address: object) -> str:
-    if not isinstance(address, dict):
-        return ""
-    street = str(address.get("streetAddress") or "").strip()
-    locality = str(address.get("addressLocality") or "").strip()
-    postal_code = str(address.get("postalCode") or "").strip()
-    country = country_name(str(address.get("addressCountry") or "").strip())
-    city = " ".join(part for part in [postal_code, locality] if part)
-    return ", ".join(part for part in [street, city, country] if part)
-
-
-def michelin_id_from_url(url: str) -> str:
-    match = re.search(r"/en/(.+?/restaurant/[^/?#]+)", url)
-    return match.group(1).strip("/") if match else ""
-
-
-def michelin_id_from_algolia_hit(hit: dict[str, object]) -> str:
-    url = str(hit.get("url") or "")
-    if url.startswith("/en/"):
-        return url.removeprefix("/en/").strip("/")
-    slug = str(hit.get("slug") or "").strip("/")
-    return f"{PARIS_MICHELIN_PREFIX}{slug}" if slug else ""
-
-
-def stars_from_algolia_hit(hit: dict[str, object]) -> str:
-    star = str(hit.get("michelin_star") or "").upper()
-    return {"ONE": "1", "TWO": "2", "THREE": "3"}.get(star, "")
-
-
-def cuisine_from_algolia_hit(hit: dict[str, object]) -> str:
-    cuisines = hit.get("cuisines")
-    if isinstance(cuisines, list) and cuisines:
-        first = cuisines[0]
-        if isinstance(first, dict):
-            return str(first.get("label") or "").replace(" Cuisine", "")
+    for language in ("en", "fr"):
+        label = labels.get(language)
+        if isinstance(label, dict) and str(label.get("value") or "").strip():
+            return str(label["value"]).strip()
     return ""
 
 
-def format_algolia_address(hit: dict[str, object]) -> str:
-    city = hit.get("city")
-    country = hit.get("country")
-    city_name = str(city.get("name") or "") if isinstance(city, dict) else ""
-    country_name_value = str(country.get("name") or "") if isinstance(country, dict) else ""
-    street = str(hit.get("street") or "").strip()
-    postcode = str(hit.get("postcode") or "").strip()
-    city_line = " ".join(part for part in [postcode, city_name] if part)
-    return ", ".join(part for part in [street, city_line, country_name_value] if part)
-
-
-def format_nominatim_address(hit: dict[str, object]) -> str:
-    address = hit.get("address")
-    if not isinstance(address, dict):
-        return ""
-    road = str(address.get("road") or address.get("pedestrian") or address.get("square") or "").strip()
-    house_number = str(address.get("house_number") or "").strip()
-    street = " ".join(part for part in [house_number, road] if part)
-    postcode = str(address.get("postcode") or "").strip()
-    city = str(address.get("city") or address.get("town") or "Paris").strip()
-    country = str(address.get("country") or "France").strip()
-    city_line = " ".join(part for part in [postcode, city] if part)
-    return ", ".join(part for part in [street, city_line, country] if part)
-
-
-def is_nominatim_paris_hit(hit: dict[str, object]) -> bool:
-    address = hit.get("address")
-    if not isinstance(address, dict):
-        return False
-    location = " ".join(
-        str(address.get(key) or "") for key in ("city", "city_district", "suburb", "postcode", "county")
-    )
-    return bool(re.search(r"\bParis\b|\b75\d{3}\b", location, re.IGNORECASE))
-
-
-def select_algolia_hit(name: str) -> dict[str, object]:
-    cache_key = normalized_name(name)
-    if cache_key in ALGOLIA_CACHE:
-        return ALGOLIA_CACHE[cache_key]
-
-    hits = []
-    query_names = [MICHELIN_SEARCH_NAME_OVERRIDES.get(name, name)]
-    query_names.extend(variant for variant in normalized_name_variants(name) if variant != cache_key)
-    for query_name in query_names:
+def statement_entity_ids(entity: dict[str, Any], property_id: str) -> set[str]:
+    claims = entity.get("claims")
+    if not isinstance(claims, dict):
+        return set()
+    statements = claims.get(property_id)
+    if not isinstance(statements, list):
+        return set()
+    ids: set[str] = set()
+    for statement in statements:
         try:
-            hits.extend(fetch_algolia_hits(f"{query_name} Paris"))
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+            candidate = statement["mainsnak"]["datavalue"]["value"]["id"]
+        except (KeyError, TypeError):
             continue
-
-    paris_hits = []
-    for hit in hits:
-        city = hit.get("city")
-        country = hit.get("country")
-        city_name = str(city.get("name") or "") if isinstance(city, dict) else ""
-        country_code = str(country.get("code") or "") if isinstance(country, dict) else ""
-        if city_name.lower() == "paris" and country_code.upper() == "FR":
-            paris_hits.append(hit)
-
-    for hit in paris_hits:
-        hit_name = str(hit.get("name") or "")
-        if has_matching_name(name, hit_name) or any(has_matching_name(query_name, hit_name) for query_name in query_names):
-            ALGOLIA_CACHE[cache_key] = hit
-            return hit
-
-    ALGOLIA_CACHE[cache_key] = {}
-    return ALGOLIA_CACHE[cache_key]
+        if isinstance(candidate, str) and re.fullmatch(r"Q\d+", candidate):
+            ids.add(candidate)
+    return ids
 
 
-def enrich_row_from_nominatim(row: dict[str, str]) -> dict[str, str]:
-    hit = fetch_nominatim_hit(f"{row.get('name', '')} Paris France")
-    if not hit or not is_nominatim_paris_hit(hit):
-        return row
-    address = format_nominatim_address(hit)
-    if address and not row.get("address"):
-        row["address"] = address
-        row["arrondissement"] = infer_area(address, "Paris", row.get("country") or "France")
-    if hit.get("lat") and not row.get("latitude"):
-        row["latitude"] = str(hit["lat"])
-    if hit.get("lon") and not row.get("longitude"):
-        row["longitude"] = str(hit["lon"])
-    return row
+def type_descends_from_city(type_id: str, types: dict[str, dict[str, Any]], memo: dict[str, bool]) -> bool:
+    if type_id == CITY_ITEM:
+        return True
+    if type_id in memo:
+        return memo[type_id]
+    memo[type_id] = False
+    memo[type_id] = any(
+        type_descends_from_city(parent, types, memo)
+        for parent in statement_entity_ids(types.get(type_id, {}), "P279")
+    )
+    return memo[type_id]
 
 
-def find_michelin_id_by_search(name: str) -> str:
-    query = urllib.parse.urlencode({"q": f"{name} Paris"})
-    html = fetch_text(f"{MICHELIN_BASE_URL}/en/restaurants?{query}")
-    candidates = []
-    for match in re.finditer(r'href="(/en/ile-de-france/paris/restaurant/[^"]+)"', html):
-        href = match.group(1)
-        context = html[max(0, match.start() - 3000) : match.end() + 500]
-        name_match = re.search(r'data-restaurant-name="([^"]+)"', context)
-        candidate_name = unescape(name_match.group(1)).strip() if name_match else ""
-        michelin_id = michelin_id_from_url(href)
-        if michelin_id and has_matching_name(name, candidate_name):
-            return michelin_id
-        if michelin_id:
-            candidates.append(michelin_id)
-    return candidates[0] if candidates else ""
+def city_entity_ids(entities: dict[str, dict[str, Any]], types: dict[str, dict[str, Any]]) -> set[str]:
+    memo: dict[str, bool] = {}
+    city_ids = set()
+    for candidate_id, entity in entities.items():
+        if any(type_descends_from_city(type_id, types, memo) for type_id in statement_entity_ids(entity, "P31")):
+            city_ids.add(candidate_id)
+    return city_ids
 
 
-def fetch_michelin_data(michelin_id: str, name: str = "") -> tuple[str, dict[str, object]]:
-    html = fetch_text(michelin_url(michelin_id))
-    data = extract_michelin_json_ld(html)
-    data_name = str(data.get("name") or "") if data else ""
-    data_address = data.get("address") if data else None
-    locality = str(data_address.get("addressLocality") or "") if isinstance(data_address, dict) else ""
-    if name and data and has_matching_name(name, data_name) and locality.lower() == "paris":
-        return michelin_id.strip("/"), data
-    if name:
-        resolved_id = find_michelin_id_by_search(name)
-        if resolved_id and resolved_id != michelin_id.strip("/"):
-            html = fetch_text(michelin_url(resolved_id))
-            resolved_data = extract_michelin_json_ld(html)
-            if resolved_data:
-                return resolved_id, resolved_data
-    return michelin_id.strip("/"), data
-
-
-def enrich_row_from_michelin(row: dict[str, str]) -> dict[str, str]:
-    if not row.get("michelin_id"):
-        return row
-
-    hit = select_algolia_hit(row.get("name", ""))
-    if hit:
-        michelin_id = michelin_id_from_algolia_hit(hit)
-        if michelin_id:
-            row["michelin_id"] = michelin_id
-            row["michelin_url"] = michelin_url(michelin_id)
-
-        address = format_algolia_address(hit)
-        if address and not row.get("address"):
-            row["address"] = address
-            row["arrondissement"] = infer_area(address, "Paris", row.get("country") or "France")
-
-        geoloc = hit.get("_geoloc")
-        if isinstance(geoloc, dict):
-            if geoloc.get("lat") and not row.get("latitude"):
-                row["latitude"] = str(geoloc["lat"])
-            if geoloc.get("lng") and not row.get("longitude"):
-                row["longitude"] = str(geoloc["lng"])
-        if hit.get("website") and not row.get("website"):
-            row["website"] = str(hit["website"])
-        if not row.get("stars"):
-            row["stars"] = stars_from_algolia_hit(hit)
-        if not row.get("cuisine"):
-            row["cuisine"] = cuisine_from_algolia_hit(hit)
-        return row
-
-    if not row.get("address") or not row.get("latitude") or not row.get("longitude"):
-        row = enrich_row_from_nominatim(row)
-        if row.get("address") and row.get("latitude") and row.get("longitude"):
-            return row
-
-    michelin_id, data = fetch_michelin_data(row["michelin_id"], row.get("name", ""))
-    if not data:
-        return row
-
-    row["michelin_id"] = michelin_id
-    row["michelin_url"] = michelin_url(michelin_id)
-
-    address = format_michelin_address(data.get("address"))
-    if address and not row.get("address"):
-        row["address"] = address
-        data_address = data.get("address")
-        locality = str(data_address.get("addressLocality") or "") if isinstance(data_address, dict) else ""
-        row["arrondissement"] = infer_area(address, locality, row.get("country") or "France")
-    if data.get("latitude") and not row.get("latitude"):
-        row["latitude"] = str(data["latitude"])
-    if data.get("longitude") and not row.get("longitude"):
-        row["longitude"] = str(data["longitude"])
-    if data.get("url") and not row.get("website"):
-        row["website"] = str(data["url"])
-    if data.get("servesCuisine") and not row.get("cuisine"):
-        row["cuisine"] = str(data["servesCuisine"]).replace(" Cuisine", "")
-    return row
-
-
-def is_paris_france_row(row: dict[str, str]) -> bool:
-    if row.get("country") != "France":
-        return False
-    michelin_id = row.get("michelin_id", "").strip("/")
-    location_text = " ".join([row.get("address", ""), row.get("arrondissement", ""), row.get("michelin_url", "")])
-    return michelin_id.startswith(PARIS_MICHELIN_PREFIX) or re.search(r"\bparis\b", location_text, re.IGNORECASE)
-
-
-def parse_wikipedia_table_row(block: str) -> dict[str, str] | None:
-    match = re.search(r'!\s*scope="row"\s*\|([^\n]+)\n(.+)', block, flags=re.DOTALL)
-    if not match:
-        return None
-
-    name = clean_wikitext(match.group(1))
-    cells = []
-    for line in match.group(2).split("\n|"):
-        line = line.strip()
-        if not line:
+def nearest_city(location_ids: Iterable[str], entities: dict[str, dict[str, Any]], cities: set[str]) -> str:
+    queue = deque((location_id, 0) for location_id in sorted(set(location_ids)))
+    seen: set[str] = set()
+    current_depth = 0
+    candidates: list[str] = []
+    while queue:
+        candidate_id, depth = queue.popleft()
+        if candidate_id in seen:
             continue
-        cells.extend(part.strip() for part in line.split("||"))
+        if candidates and depth > current_depth:
+            break
+        seen.add(candidate_id)
+        if candidate_id in cities:
+            current_depth = depth
+            candidates.append(candidate_id)
+            continue
+        for parent_id in sorted(statement_entity_ids(entities.get(candidate_id, {}), "P131")):
+            queue.append((parent_id, depth + 1))
+    return sorted(candidates)[0] if candidates else ""
 
-    if len(cells) < 6:
-        return None
 
-    stars = star_count_from_wikitext(cells[-1])
-    if not stars:
-        return None
+def nearest_country(location_ids: Iterable[str], entities: dict[str, dict[str, Any]]) -> str:
+    queue = deque((location_id, 0) for location_id in sorted(set(location_ids)))
+    seen: set[str] = set()
+    current_depth = 0
+    candidates: list[str] = []
+    while queue:
+        candidate_id, depth = queue.popleft()
+        if candidate_id in seen:
+            continue
+        if candidates and depth > current_depth:
+            break
+        seen.add(candidate_id)
+        countries = sorted(statement_entity_ids(entities.get(candidate_id, {}), "P17"))
+        if countries:
+            current_depth = depth
+            candidates.extend(countries)
+            continue
+        for parent_id in sorted(statement_entity_ids(entities.get(candidate_id, {}), "P131")):
+            queue.append((parent_id, depth + 1))
+    return sorted(set(candidates))[0] if candidates else ""
 
-    cuisine = clean_wikitext(cells[0])
-    location = clean_wikitext(cells[1])
-    michelin_id = michelin_id_for_paris_row(name)
+
+def aggregate_bindings(bindings: list[dict[str, dict[str, str]]]) -> list[dict[str, Any]]:
+    restaurants: dict[str, dict[str, Any]] = {}
+    for binding in bindings:
+        wikidata_id = entity_id(value(binding, "restaurant"))
+        if not wikidata_id:
+            raise ValueError("SPARQL result contained a restaurant without a Wikidata entity ID")
+        row = restaurants.setdefault(
+            wikidata_id,
+            {
+                "wikidata_id": wikidata_id,
+                "name": "",
+                "description": "",
+                "cuisines": set(),
+                "addresses": set(),
+                "localities": {},
+                "countries": {},
+                "coordinates": set(),
+                "websites": set(),
+                "michelin_ids": set(),
+            },
+        )
+        label = value(binding, "restaurantLabel")
+        if label and label != wikidata_id:
+            row["name"] = label
+        if value(binding, "restaurantDescription"):
+            row["description"] = value(binding, "restaurantDescription")
+        if value(binding, "cuisineLabel"):
+            row["cuisines"].add(value(binding, "cuisineLabel"))
+        if value(binding, "address"):
+            row["addresses"].add(value(binding, "address"))
+        location_id = entity_id(value(binding, "location"))
+        if location_id:
+            row["localities"][location_id] = value(binding, "locationLabel") or location_id
+        country_id = entity_id(value(binding, "country"))
+        if country_id:
+            row["countries"][country_id] = value(binding, "countryLabel") or country_id
+        if value(binding, "coord"):
+            row["coordinates"].add(value(binding, "coord"))
+        if value(binding, "website"):
+            row["websites"].add(value(binding, "website"))
+        if value(binding, "michelinId"):
+            row["michelin_ids"].add(value(binding, "michelinId").strip("/"))
+    return list(restaurants.values())
+
+
+def unique_slugs(entries: dict[str, str]) -> dict[str, str]:
+    grouped: dict[str, list[str]] = defaultdict(list)
+    for entity_id_value, label in entries.items():
+        grouped[slugify(label) or entity_id_value.lower()].append(entity_id_value)
+    slugs: dict[str, str] = {}
+    for base, ids in grouped.items():
+        for entity_id_value in sorted(ids):
+            slugs[entity_id_value] = base if len(ids) == 1 else f"{base}-{entity_id_value.lower()}"
+    return slugs
+
+
+def finalize_rows(
+    aggregated: list[dict[str, Any]],
+    location_entities: dict[str, dict[str, Any]],
+    type_entities: dict[str, dict[str, Any]],
+) -> list[dict[str, str]]:
+    cities = city_entity_ids(location_entities, type_entities)
+    needed_country_ids: set[str] = set()
+    resolved: list[dict[str, Any]] = []
+    for item in aggregated:
+        location_ids = set(item["localities"])
+        city_id = nearest_city(location_ids, location_entities, cities)
+        direct_country_ids = sorted(item["countries"])
+        country_id = direct_country_ids[0] if direct_country_ids else nearest_country(location_ids, location_entities)
+        if country_id:
+            needed_country_ids.add(country_id)
+        resolved.append({**item, "city_id": city_id, "country_id": country_id})
+
+    missing_country_entities = needed_country_ids - set(location_entities)
+    country_entities = fetch_entities(missing_country_entities) if missing_country_entities else {}
+    all_entities = {**location_entities, **country_entities}
+
+    country_labels: dict[str, str] = {}
+    city_labels: dict[str, str] = {}
+    for item in resolved:
+        country_id = item["country_id"]
+        city_id = item["city_id"]
+        if country_id:
+            country_labels[country_id] = (
+                item["countries"].get(country_id) or label_for_entity(country_id, all_entities) or country_id
+            )
+        if city_id:
+            city_labels[city_id] = label_for_entity(city_id, all_entities) or city_id
+
+    country_slugs = unique_slugs(country_labels)
+    city_slugs_by_country: dict[str, str] = {}
+    city_groups: dict[str, dict[str, str]] = defaultdict(dict)
+    for item in resolved:
+        if item["city_id"]:
+            city_groups[item["country_id"]][item["city_id"]] = city_labels[item["city_id"]]
+    for country_id, entries in city_groups.items():
+        for city_id, city_slug in unique_slugs(entries).items():
+            city_slugs_by_country[f"{country_id}:{city_id}"] = city_slug
+
+    id_groups: dict[str, list[str]] = defaultdict(list)
+    for item in resolved:
+        base_id = slugify(item["name"] or item["wikidata_id"]) or item["wikidata_id"].lower()
+        item["base_id"] = base_id
+        id_groups[base_id].append(item["wikidata_id"])
+
+    rows: list[dict[str, str]] = []
+    for item in resolved:
+        wikidata_id = item["wikidata_id"]
+        restaurant_id = item["base_id"]
+        if len(id_groups[restaurant_id]) > 1:
+            restaurant_id = f"{restaurant_id}-{wikidata_id.lower()}"
+        coordinates = sorted(item["coordinates"])
+        latitude, longitude = parse_point(coordinates[0]) if coordinates else ("", "")
+        location_ids = sorted(item["localities"])
+        country_id = item["country_id"]
+        city_id = item["city_id"]
+        michelin_ids = sorted(item["michelin_ids"])
+        michelin_id = michelin_ids[0] if michelin_ids else ""
+        rows.append(
+            {
+                "id": restaurant_id,
+                "wikidata_id": wikidata_id,
+                "name": item["name"] or wikidata_id,
+                "description": item["description"],
+                "cuisine": " / ".join(sorted(item["cuisines"])),
+                "address": sorted(item["addresses"])[0] if item["addresses"] else "",
+                "locality": " / ".join(item["localities"][key] for key in location_ids),
+                "locality_wikidata_id": " / ".join(location_ids),
+                "city": city_labels.get(city_id, ""),
+                "city_slug": city_slugs_by_country.get(f"{country_id}:{city_id}", ""),
+                "city_wikidata_id": city_id,
+                "country": country_labels.get(country_id, ""),
+                "country_slug": country_slugs.get(country_id, ""),
+                "country_wikidata_id": country_id,
+                "latitude": latitude,
+                "longitude": longitude,
+                "website": sorted(item["websites"])[0] if item["websites"] else "",
+                "michelin_id": michelin_id,
+                "michelin_url": f"{MICHELIN_BASE_URL}/{michelin_id}" if michelin_id else "",
+            }
+        )
+    rows.sort(key=lambda row: (row["name"].casefold(), row["wikidata_id"]))
+    return rows
+
+
+def validate_rows(rows: list[dict[str, str]], source_ids: set[str]) -> None:
+    problems: list[str] = []
+    row_source_ids = {row["wikidata_id"] for row in rows}
+    if len(rows) != len(source_ids):
+        problems.append(f"expected {len(source_ids)} rows, produced {len(rows)}")
+    if row_source_ids != source_ids:
+        missing = sorted(source_ids - row_source_ids)
+        extra = sorted(row_source_ids - source_ids)
+        problems.append(f"source mismatch; missing={missing[:10]} extra={extra[:10]}")
+    ids = [row["id"] for row in rows]
+    if len(ids) != len(set(ids)):
+        problems.append("restaurant IDs are not unique")
+    for row in rows:
+        if not row["name"]:
+            problems.append(f"{row['wikidata_id']}: missing name")
+        if row["latitude"] or row["longitude"]:
+            try:
+                latitude = float(row["latitude"])
+                longitude = float(row["longitude"])
+            except ValueError:
+                problems.append(f"{row['wikidata_id']}: invalid coordinates")
+            else:
+                if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+                    problems.append(f"{row['wikidata_id']}: coordinates out of range")
+        if row["city"] and not row["city_wikidata_id"]:
+            problems.append(f"{row['wikidata_id']}: city label without Wikidata ID")
+        if row["country"] and not row["country_wikidata_id"]:
+            problems.append(f"{row['wikidata_id']}: country label without Wikidata ID")
+    if problems:
+        raise ValueError("Dataset validation failed:\n" + "\n".join(problems[:100]))
+
+
+def build_metadata(rows: list[dict[str, str]]) -> dict[str, Any]:
+    country_ids = {row["country_wikidata_id"] for row in rows if row["country_wikidata_id"]}
+    city_ids = {row["city_wikidata_id"] for row in rows if row["city_wikidata_id"]}
     return {
-        "id": restaurant_slug(name, michelin_id),
-        "name": name,
-        "stars": stars,
-        "cuisine": cuisine,
-        "address": "",
-        "arrondissement": f"{location}, France" if location else "Paris, France",
-        "country": "France",
-        "latitude": "",
-        "longitude": "",
-        "website": "",
-        "wikidata_url": "",
-        "michelin_id": michelin_id,
-        "michelin_url": f"https://guide.michelin.com/en/{michelin_id}",
-        "description": "Michelin-starred restaurant in Paris from Wikipedia's current Michelin list.",
+        "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "source": {
+            "name": "Wikidata",
+            "query_file": "scripts/wikidata_restaurants.sparql",
+            "award_property": "P166",
+            "award_item": "Q20824563",
+            "instance_of_item": "Q11707",
+            "michelin_id_property": "P4160",
+            "michelin_id_required": False,
+            "fallback_sources": [],
+        },
+        "counts": {
+            "restaurants": len(rows),
+            "countries": len(country_ids),
+            "cities": len(city_ids),
+            "mapped_restaurants": sum(bool(row["latitude"] and row["longitude"]) for row in rows),
+        },
+        "missing": {
+            "country": sum(not row["country"] for row in rows),
+            "city": sum(not row["city"] for row in rows),
+            "coordinates": sum(not (row["latitude"] and row["longitude"]) for row in rows),
+            "address": sum(not row["address"] for row in rows),
+            "michelin_id": sum(not row["michelin_id"] for row in rows),
+        },
     }
 
 
-def rows_from_wikipedia_paris_list() -> list[dict[str, str]]:
-    wikitext = fetch_wikipedia_wikitext(WIKIPEDIA_PARIS_TITLE)
-    rows = []
-    for block in wikitext.split("|-"):
-        row = parse_wikipedia_table_row(block)
-        if row:
-            rows.append(row)
-    print(f"Found {len(rows)} current Paris restaurants from Wikipedia.")
-    return rows
-
-
-def extract_stars_from_michelin(michelin_id: str) -> str:
-    if not michelin_id:
-        return ""
-
-    urls = [
-        michelin_url(michelin_id, "en"),
-        michelin_url(michelin_id, "fr"),
-    ]
-    for url in urls:
-        try:
-            html = fetch_text(url)
-        except (urllib.error.URLError, TimeoutError):
-            continue
-
-        star_patterns = [
-            r"(\d)\s+MICHELIN\s+Stars?",
-            r"(\d)\s+étoiles?\s+MICHELIN",
-            r"Trois\s+étoiles?",
-            r"Deux\s+étoiles?",
-            r"Une\s+étoile",
-            r"data-award=['\"](\d)['\"]",
-            r"michelin-star(?:red)?[^0-9]{0,40}(\d)",
-        ]
-        for pattern in star_patterns:
-            match = re.search(pattern, html, re.IGNORECASE)
-            if match:
-                if match.groups() and match.group(1) in {"1", "2", "3"}:
-                    return match.group(1)
-                words = match.group(0).lower()
-                if "trois" in words:
-                    return "3"
-                if "deux" in words:
-                    return "2"
-                if "une" in words:
-                    return "1"
-
-        icon_count = len(re.findall(r"icon-star|star-icon|michelin-star", html, re.IGNORECASE))
-        if 1 <= icon_count <= 3:
-            return str(icon_count)
-    return ""
-
-
-def rows_from_wikidata() -> list[dict[str, str]]:
-    rows = []
-    seen = set()
-    items = wikidata_query()
-    print(f"Found {len(items)} Wikidata candidates.")
-    for item in progress(items, desc="Enriching Michelin pages", unit="restaurant"):
-        michelin_id = value(item, "michelinId").strip("/")
-        name = value(item, "restaurantLabel")
-        if re.fullmatch(r"Q\d+", name):
-            name = name_from_michelin_id(michelin_id)
-        if not name or michelin_id in seen:
-            continue
-        seen.add(michelin_id)
-        latitude, longitude = parse_point(value(item, "coord"))
-        address = value(item, "address")
-        country = value(item, "countryLabel")
-        area = infer_area(address, value(item, "locationLabel"), country)
-        restaurant_michelin_url = michelin_url(michelin_id)
-        stars = extract_stars_from_michelin(michelin_id)
-        rows.append(
-            {
-                "id": restaurant_slug(name, michelin_id),
-                "name": name,
-                "stars": stars,
-                "cuisine": value(item, "cuisineLabel"),
-                "address": address,
-                "arrondissement": area,
-                "country": country,
-                "latitude": latitude,
-                "longitude": longitude,
-                "website": value(item, "website"),
-                "wikidata_url": value(item, "restaurant"),
-                "michelin_id": michelin_id,
-                "michelin_url": restaurant_michelin_url,
-                "description": value(item, "restaurantDescription"),
-            }
-        )
-        time.sleep(0.15)
-    return rows
-
-
-def load_generated_descriptions(path: Path = DESCRIPTIONS_FILE) -> dict[str, str]:
-    if not path.exists():
-        return {}
+def write_csv_temp(rows: list[dict[str, str]]) -> Path:
+    OUTFILE.parent.mkdir(parents=True, exist_ok=True)
+    handle = tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", dir=OUTFILE.parent, delete=False)
     try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {}
-    descriptions: dict[str, str] = {}
-    for key, value in raw.items():
-        if isinstance(value, dict):
-            description = str(value.get("description") or "").strip()
-        else:
-            description = str(value or "").strip()
-        if description:
-            descriptions[str(key)] = description
-    return descriptions
+        with handle:
+            writer = csv.DictWriter(handle, fieldnames=FIELDS, lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(rows)
+        return Path(handle.name)
+    except Exception:
+        Path(handle.name).unlink(missing_ok=True)
+        raise
 
 
-def apply_generated_descriptions(rows: list[dict[str, str]], descriptions: dict[str, str]) -> int:
-    updated = 0
-    for row in rows:
-        description = descriptions.get(row.get("id", ""))
-        if description and row.get("description") != description:
-            row["description"] = description
-            updated += 1
-    return updated
-
-
-def merge_rows(base_rows: list[dict[str, str]], extra_rows: list[dict[str, str]]) -> list[dict[str, str]]:
-    rows = list(base_rows)
-    rows_by_id = {row["michelin_id"].strip("/"): row for row in rows if row["michelin_id"]}
-    rows_by_name = {row["name"].casefold(): row for row in rows if row["name"]}
-
-    added = 0
-    updated = 0
-    for row in extra_rows:
-        michelin_id = row["michelin_id"].strip("/")
-        existing = rows_by_id.get(michelin_id) or rows_by_name.get(row["name"].casefold())
-        if existing:
-            for key in ("stars", "cuisine"):
-                if row[key] and not existing[key]:
-                    existing[key] = row[key]
-                    updated += 1
-            continue
-        rows.append(row)
-        rows_by_id[michelin_id] = row
-        rows_by_name[row["name"].casefold()] = row
-        added += 1
-
-    print(f"Added {added} Paris restaurants from Wikipedia that were missing from Wikidata.")
-    print(f"Filled {updated} blank fields on existing Wikidata rows from Wikipedia.")
-    return rows
+def write_json_temp(payload: dict[str, Any]) -> Path:
+    METADATA_FILE.parent.mkdir(parents=True, exist_ok=True)
+    handle = tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=METADATA_FILE.parent, delete=False)
+    try:
+        with handle:
+            json.dump(payload, handle, ensure_ascii=False, indent=2)
+            handle.write("\n")
+        return Path(handle.name)
+    except Exception:
+        Path(handle.name).unlink(missing_ok=True)
+        raise
 
 
 def main() -> None:
-    OUTFILE.parent.mkdir(parents=True, exist_ok=True)
-    merged_rows = merge_rows(rows_from_wikidata(), rows_from_wikipedia_paris_list())
-    rows = [enrich_row_from_michelin(row) for row in progress(merged_rows, desc="Filling Michelin addresses", unit="restaurant")]
-    rows = [row for row in rows if is_paris_france_row(row)]
-    updated_descriptions = apply_generated_descriptions(rows, load_generated_descriptions())
-    if updated_descriptions:
-        print(f"Applied {updated_descriptions} generated descriptions from {DESCRIPTIONS_FILE}.")
-    rows.sort(key=lambda row: (row["name"].lower(), row["michelin_id"]))
-    with OUTFILE.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=FIELDS)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Wrote {len(rows)} restaurants to {OUTFILE}")
+    query = QUERY_PATH.read_text(encoding="utf-8")
+    print("Fetching all Michelin-star award records from Wikidata...")
+    bindings = fetch_sparql(query)
+    aggregated = aggregate_bindings(bindings)
+    source_ids = {row["wikidata_id"] for row in aggregated}
+    print(f"Fetched {len(bindings)} bindings for {len(source_ids)} unique restaurants.")
+
+    location_ids = {location_id for row in aggregated for location_id in row["localities"]}
+    print(f"Resolving the Wikidata hierarchy for {len(location_ids)} immediate locations...")
+    location_entities = expand_entity_graph(location_ids, ("P131",))
+    type_ids = {
+        type_id
+        for entity in location_entities.values()
+        for type_id in statement_entity_ids(entity, "P31")
+    }
+    type_entities = expand_entity_graph(type_ids, ("P279",))
+    rows = finalize_rows(aggregated, location_entities, type_entities)
+    validate_rows(rows, source_ids)
+    metadata = build_metadata(rows)
+
+    csv_temp = write_csv_temp(rows)
+    metadata_temp = write_json_temp(metadata)
+    try:
+        os.replace(csv_temp, OUTFILE)
+        os.replace(metadata_temp, METADATA_FILE)
+    finally:
+        csv_temp.unlink(missing_ok=True)
+        metadata_temp.unlink(missing_ok=True)
+
+    counts = metadata["counts"]
+    print(
+        f"Wrote {counts['restaurants']} restaurants, {counts['countries']} countries, "
+        f"{counts['cities']} cities, and {counts['mapped_restaurants']} mapped rows."
+    )
+    print(f"CSV: {OUTFILE}")
+    print(f"Metadata: {METADATA_FILE}")
 
 
 if __name__ == "__main__":

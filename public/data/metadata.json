@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-07-13T19:46:43Z",
+  "source": {
+    "name": "Wikidata",
+    "query_file": "scripts/wikidata_restaurants.sparql",
+    "award_property": "P166",
+    "award_item": "Q20824563",
+    "instance_of_item": "Q11707",
+    "michelin_id_property": "P4160",
+    "michelin_id_required": false,
+    "fallback_sources": []
+  },
+  "counts": {
+    "restaurants": 1221,
+    "countries": 39,
+    "cities": 194,
+    "mapped_restaurants": 1204
+  },
+  "missing": {
+    "country": 2,
+    "city": 648,
+    "coordinates": 17,
+    "address": 699,
+    "michelin_id": 1122
+  }
+}

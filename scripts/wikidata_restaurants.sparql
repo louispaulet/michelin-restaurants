@@ -1,0 +1,19 @@
+SELECT ?restaurant ?restaurantLabel ?restaurantDescription ?michelinId ?coord
+       ?address ?website ?cuisine ?cuisineLabel ?location ?locationLabel
+       ?country ?countryLabel WHERE {
+  ?restaurant wdt:P166 wd:Q20824563.
+  ?restaurant wdt:P31/wdt:P279* wd:Q11707.
+
+  OPTIONAL { ?restaurant wdt:P4160 ?michelinId. }
+  OPTIONAL { ?restaurant wdt:P625 ?coord. }
+  OPTIONAL { ?restaurant wdt:P6375 ?address. }
+  OPTIONAL { ?restaurant wdt:P856 ?website. }
+  OPTIONAL { ?restaurant wdt:P2012 ?cuisine. }
+  OPTIONAL { ?restaurant wdt:P131 ?location. }
+  OPTIONAL { ?restaurant wdt:P17 ?country. }
+
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "en,fr".
+  }
+}
+ORDER BY ?restaurant
