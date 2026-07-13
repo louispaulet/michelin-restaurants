@@ -3,6 +3,7 @@ import unittest
 from generate_restaurants_csv import (
     aggregate_bindings,
     city_entity_ids,
+    finalize_rows,
     nearest_city,
     parse_point,
     unique_slugs,
@@ -56,6 +57,21 @@ class GeneratorTests(unittest.TestCase):
             {"Q1": "springfield-q1", "Q2": "springfield-q2"},
         )
 
+    def test_keeps_missing_metadata_empty_and_disambiguates_duplicate_names(self):
+        aggregated = aggregate_bindings(
+            [
+                {"restaurant": {"value": "http://www.wikidata.org/entity/Q1"}, "restaurantLabel": {"value": "Same"}},
+                {"restaurant": {"value": "http://www.wikidata.org/entity/Q2"}, "restaurantLabel": {"value": "Same"}},
+            ]
+        )
+
+        rows = finalize_rows(aggregated, {}, {})
+
+        self.assertEqual({row["id"] for row in rows}, {"same-q1", "same-q2"})
+        self.assertTrue(all(row["description"] == "" and row["country"] == "" for row in rows))
+        self.assertTrue(all(row["michelin_id"] == "" and row["michelin_url"] == "" for row in rows))
+        validate_rows(rows, {"Q1", "Q2"})
+
     def test_parses_and_rejects_coordinates(self):
         self.assertEqual(parse_point("Point(2.35 48.85)"), ("48.85", "2.35"))
         self.assertEqual(parse_point("not a point"), ("", ""))
@@ -74,6 +90,8 @@ class GeneratorTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "expected 2 rows"):
             validate_rows([row], {"Q1", "Q2"})
+        with self.assertRaisesRegex(ValueError, "coordinates out of range"):
+            validate_rows([row], {"Q1"})
 
 
 if __name__ == "__main__":

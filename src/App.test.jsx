@@ -49,6 +49,7 @@ describe('App', () => {
     vi.stubGlobal('ResizeObserver', class ResizeObserver { observe() {} disconnect() {} });
     vi.stubGlobal('requestAnimationFrame', (callback) => { callback(); return 1; });
     vi.stubGlobal('cancelAnimationFrame', vi.fn());
+    vi.stubGlobal('scrollTo', vi.fn());
     vi.stubGlobal('fetch', vi.fn((url) => {
       if (String(url).includes('metadata.json')) {
         return Promise.resolve({ ok: true, json: () => Promise.resolve(metadata) });

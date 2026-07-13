@@ -84,9 +84,10 @@ function RestaurantMap({ restaurants, individualMode, visible }) {
 
   useEffect(() => {
     if (!nodeRef.current || mapRef.current) return undefined;
-    const map = L.map(nodeRef.current, { scrollWheelZoom: false }).setView([20, 0], 2);
+    const map = L.map(nodeRef.current, { scrollWheelZoom: false, zoomSnap: 0.25 }).setView([20, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
+      noWrap: true,
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
     mapRef.current = map;
@@ -154,6 +155,7 @@ export default function MapPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState('map');
   const [search, setSearch] = useState('');
+  const [listLimit, setListLimit] = useState(100);
   const countries = useMemo(() => buildCountryDirectory(restaurants), [restaurants]);
   const requestedCountry = searchParams.get('country') ?? '';
   const country = countries.find((entry) => entry.slug === requestedCountry) ?? null;
@@ -173,6 +175,8 @@ export default function MapPage() {
     [normalizedSearch, scopedRestaurants],
   );
   const mappedCount = scopedRestaurants.filter((restaurant) => restaurant.latitude !== null && restaurant.longitude !== null).length;
+
+  useEffect(() => setListLimit(100), [requestedCountry, requestedCity, normalizedSearch]);
 
   const updateScope = (nextCountry, nextCity = '') => {
     const params = new URLSearchParams();
@@ -235,12 +239,19 @@ export default function MapPage() {
                 <p className="mt-0.5 text-xs text-stone-500">Alphabetical · includes records without coordinates</p>
               </div>
               <div className="divide-y divide-stone-100">
-                {listedRestaurants.map((restaurant) => (
+                {listedRestaurants.slice(0, listLimit).map((restaurant) => (
                   <Link key={restaurant.id} to={`/restaurants/${restaurant.id}`} className="block min-h-11 px-4 py-3 transition hover:bg-red-50 focus-visible:bg-red-50">
                     <span className="block font-semibold">{restaurant.name}</span>
                     <span className="mt-1 block text-sm text-stone-500">{restaurant.cuisine || 'Cuisine not specified'} · {restaurant.city || restaurant.locality || restaurant.country || 'Location not specified'}</span>
                   </Link>
                 ))}
+                {listLimit < listedRestaurants.length && (
+                  <div className="p-4">
+                    <button type="button" onClick={() => setListLimit((limit) => limit + 100)} className="button-secondary w-full justify-center">
+                      Show 100 more
+                    </button>
+                  </div>
+                )}
                 {listedRestaurants.length === 0 && <p className="p-6 text-sm text-stone-600">No restaurants match this list search.</p>}
               </div>
             </aside>

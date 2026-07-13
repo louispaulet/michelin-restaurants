@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Breadcrumbs from '../components/Breadcrumbs.jsx';
 import RestaurantCard from '../components/RestaurantCard.jsx';
 import RestaurantFilters from '../components/RestaurantFilters.jsx';
@@ -8,10 +8,12 @@ import { filterRestaurants, sortRestaurants, uniqueOptions } from '../data/filte
 import { useRestaurants } from '../state/RestaurantContext.jsx';
 
 const initialFilters = { search: '', cuisine: 'all', country: 'all', city: 'all' };
+const PAGE_SIZE = 60;
 
 export default function RestaurantsPage() {
   const { status, restaurants, error } = useRestaurants();
   const [filters, setFilters] = useState(initialFilters);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const filteredRestaurants = useMemo(
     () => sortRestaurants(filterRestaurants(restaurants, filters)),
@@ -23,6 +25,8 @@ export default function RestaurantsPage() {
     if (filters.country === 'all') return [];
     return buildCityDirectory(restaurants.filter((restaurant) => restaurant.country_slug === filters.country));
   }, [filters.country, restaurants]);
+
+  useEffect(() => setVisibleCount(PAGE_SIZE), [filters]);
 
   const updateFilters = (nextFilters) => {
     if (nextFilters.country !== filters.country) {
@@ -63,10 +67,17 @@ export default function RestaurantsPage() {
             )}
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {filteredRestaurants.map((restaurant) => (
+            {filteredRestaurants.slice(0, visibleCount).map((restaurant) => (
               <RestaurantCard key={restaurant.id} restaurant={restaurant} />
             ))}
           </div>
+          {visibleCount < filteredRestaurants.length && (
+            <div className="flex justify-center">
+              <button type="button" onClick={() => setVisibleCount((count) => count + PAGE_SIZE)} className="button-secondary">
+                Show more restaurants ({(filteredRestaurants.length - visibleCount).toLocaleString()} remaining)
+              </button>
+            </div>
+          )}
           {filteredRestaurants.length === 0 && (
             <div className="rounded border border-stone-200 bg-white p-8 text-center">
               <h2 className="text-lg font-semibold">No matching restaurants</h2>

@@ -23,6 +23,11 @@ body {
   background: rgba(200, 16, 46, 0.16);
 }
 
+:where(a, button, input, select):focus-visible {
+  outline: 2px solid #c8102e;
+  outline-offset: 3px;
+}
+
 @layer components {
   .font-display {
     font-family: Georgia, "Times New Roman", serif;
@@ -91,6 +96,7 @@ body {
 .leaflet-container {
   height: 100%;
   width: 100%;
+  background: #aad3df;
   font: inherit;
 }
 
