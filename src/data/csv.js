@@ -46,28 +46,12 @@ export function parseCsv(text) {
   );
 }
 
-const PARIS_MICHELIN_PREFIX = 'ile-de-france/paris/restaurant/';
-
-export function isParisFranceRestaurant(row) {
-  const country = (row.country ?? '').trim().toLowerCase();
-  if (country !== 'france') {
-    return false;
-  }
-
-  const michelinId = (row.michelin_id ?? '').trim().replace(/^\/+|\/+$/g, '');
-  const locationText = [row.address, row.arrondissement, row.michelin_url].join(' ');
-
-  return michelinId.startsWith(PARIS_MICHELIN_PREFIX) || /\bparis\b/i.test(locationText);
-}
-
 export function normalizeRestaurant(row) {
   const latitude = Number.parseFloat(row.latitude);
   const longitude = Number.parseFloat(row.longitude);
-  const stars = Number.parseInt(row.stars, 10);
   return {
     ...row,
     latitude: Number.isFinite(latitude) ? latitude : null,
     longitude: Number.isFinite(longitude) ? longitude : null,
-    stars: Number.isFinite(stars) ? stars : null,
   };
 }

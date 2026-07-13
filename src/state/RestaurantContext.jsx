@@ -1,30 +1,36 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { isParisFranceRestaurant, normalizeRestaurant, parseCsv } from '../data/csv.js';
+import { normalizeRestaurant, parseCsv } from '../data/csv.js';
 
 const RestaurantContext = createContext(null);
 
 export function RestaurantProvider({ children }) {
-  const [state, setState] = useState({ status: 'loading', restaurants: [], error: null });
+  const [state, setState] = useState({ status: 'loading', restaurants: [], metadata: null, error: null });
 
   useEffect(() => {
     let cancelled = false;
 
-    fetch(`${import.meta.env.BASE_URL}data/restaurants.csv?v=${__DATA_VERSION__}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to load dataset: ${response.status}`);
+    const dataUrl = `${import.meta.env.BASE_URL}data/restaurants.csv?v=${__DATA_VERSION__}`;
+    const metadataUrl = `${import.meta.env.BASE_URL}data/metadata.json?v=${__DATA_VERSION__}`;
+
+    Promise.all([fetch(dataUrl), fetch(metadataUrl)])
+      .then(async ([dataResponse, metadataResponse]) => {
+        if (!dataResponse.ok) {
+          throw new Error(`Failed to load the Wikidata snapshot: ${dataResponse.status}`);
         }
-        return response.text();
+        if (!metadataResponse.ok) {
+          throw new Error(`Failed to load the snapshot metadata: ${metadataResponse.status}`);
+        }
+        const [text, metadata] = await Promise.all([dataResponse.text(), metadataResponse.json()]);
+        return { restaurants: parseCsv(text).map(normalizeRestaurant), metadata };
       })
-      .then((text) => parseCsv(text).filter(isParisFranceRestaurant).map(normalizeRestaurant))
-      .then((restaurants) => {
+      .then(({ restaurants, metadata }) => {
         if (!cancelled) {
-          setState({ status: 'ready', restaurants, error: null });
+          setState({ status: 'ready', restaurants, metadata, error: null });
         }
       })
       .catch((error) => {
         if (!cancelled) {
-          setState({ status: 'error', restaurants: [], error });
+          setState({ status: 'error', restaurants: [], metadata: null, error });
         }
       });
 
