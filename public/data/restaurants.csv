@@ -31,7 +31,7 @@ adelboden,Q89504763,Adelboden,restaurant in Switzerland,,Schlagstrasse,Steinen,Q
 adrian,Q18350305,Adrian,defunct restaurant,French cuisine,,Amsterdam,Q9899,,,,Netherlands,netherlands,Q55,52.3666,4.89074,,,
 aend,Q88895696,Aend,restaurant in Austria,,Mollardgasse 76,Vienna,Q1741,Vienna,vienna,Q1741,Austria,austria,Q40,48.1897,16.3409,,,
 after-seven,Q90158754,After Seven,restaurant in Switzerland,,Hofmattstrasse 4,Zermatt,Q27494,Zermatt,zermatt,Q27494,Switzerland,switzerland,Q39,46.022,7.7479,,,
-agern,Q27877129,Agern,restaurant in New York City,,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.752597,-73.977494,http://www.agernrestaurant.com,,
+agern,Q27877129,Agern,restaurant in New York City,,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.752597,-73.977494,http://www.agernrestaurant.com,,
 agrikultur,Q70679780,Agrikultur,restaurant in Sweden,,Roslagsgatan 43,Stockholm,Q506250,,,,Sweden,sweden,Q34,59.349444444,18.056944444,http://www.agrikultur.se/,,
 aimsir,Q85740184,Aimsir,restaurant in Ireland,Irish cuisine,,Celbridge,Q629881,,,,Ireland,ireland,Q27,53.3065,-6.5421,,,
 aira,Q101654536,Aira,"restaurant in Stockholm, Sweden",,,Stockholm,Q506250,,,,Sweden,sweden,Q34,59.320833333,18.123611111,,,
@@ -177,7 +177,7 @@ chambre-separee,Q69846466,Chambre Séparée,restaurant in Belgium,French cuisine
 champany-inn,Q5069929,Champany Inn,restaurant located in Champany,,,Falkirk,Q216802,,,,United Kingdom,united-kingdom,Q145,55.993,-3.561,,,
 chapeau,Q5072962,Chapeau!,"Restaurant in Bloemendaal, Holland",,,Bloemendaal,Q9908,,,,Netherlands,netherlands,Q55,52.40596389,4.62330556,http://www.restaurantchapeau.nl,,
 chapter-one,Q2129707,Chapter One,"Restaurant in Dublin, Ireland",,,Dublin,Q1761,Dublin,dublin,Q1761,Ireland,ireland,Q27,53.35429,-6.26405,http://www.chapteronerestaurant.com,,
-chef-s-table-at-brooklyn-fare,Q5089487,Chef's Table at Brooklyn Fare,restaurant in the United States,,,Brooklyn,Q18419,Brooklyn,brooklyn,Q18419,United States,united-states,Q30,40.6887,-73.986,,,
+chef-s-table-at-brooklyn-fare,Q5089487,Chef's Table at Brooklyn Fare,restaurant in the United States,,,Brooklyn,Q18419,New York City,new-york-city,Q60,United States,united-states,Q30,40.6887,-73.986,,,
 chesa-stuva-colani,Q90298896,Chesa Stüva Colani,restaurant in Switzerland,,Via Principela 20 A,Madulain,Q66638,,,,Switzerland,switzerland,Q39,46.586,9.9377,http://www.hotelchesacolani.com/,,
 cheval-blanc-q3894156,Q3894156,Cheval Blanc,restaurant in the Netherlands,French cuisine,,Heemstede,Q9928,,,,Netherlands,netherlands,Q55,52.36029167,4.62883611,http://www.cheval-blanc.nl/,,
 cheval-blanc-q84170548,Q84170548,Cheval Blanc,"restaurant in Basel, Switzerland",,,Basel,Q78,Basel,basel,Q78,Switzerland,switzerland,Q39,47.5605,7.5877,http://www.chevalblancbasel.com,,
@@ -209,7 +209,7 @@ coq-d-or,Q5169303,Coq d'Or,"restaurant in Rotterdam, Netherlands",,,Rotterdam,Q2
 cordial,Q5169970,Cordial,Michelin starred restaurant in The Netherlands,,,Oss,Q9859,,,,Netherlands,netherlands,Q55,51.76798333,5.52860278,,,
 core-by-clare-smyth,Q90922139,Core by Clare Smyth,restaurant in the United Kingdom,British cuisine,,London,Q84,London,london,Q84,United Kingdom,united-kingdom,Q145,51.5127,-0.203,http://www.corebyclaresmyth.com/,,
 corona,Q5172117,Corona,"restaurant located in The Hague, in the Netherlands, part of Hotel Corona",,,The Hague,Q36600,The Hague,the-hague,Q36600,Netherlands,netherlands,Q55,52.07905278,4.31004444,,,
-corton,Q5173371,Corton,former restaurant in New York City,French cuisine,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7196,-74.0058,http://www.cortonnyc.com,,
+corton,Q5173371,Corton,former restaurant in New York City,French cuisine,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7196,-74.0058,http://www.cortonnyc.com,,
 costes,Q869348,Costes,restaurant in Hungary,,,Budapest / Budapest District IX,Q1781 / Q301411,Budapest,budapest,Q1781,Hungary,hungary,Q28,47.4888,19.0623,,,
 costes-downtown,Q88589588,Costes Downtown,restaurant in Hungary,,,Budapest District V,Q1042732,Budapest,budapest,Q1781,Hungary,hungary,Q28,47.501,19.0484,,,
 cour-du-nord,Q5178061,Cour du Nord,"restaurant in Drenthe, Netherlands",,,Nooitgedacht,Q502350,,,,Netherlands,netherlands,Q55,52.96876111,6.67168056,,,
@@ -228,7 +228,7 @@ da-vinci,Q1922593,Da Vinci,"restaurant in Maasbracht, the Netherlands",,,Maasgou
 da-vittorio-q84266672,Q84266672,Da Vittorio,restaurant in Italy,,,Brusaporto,Q100018,,,,Italy,italy,Q38,45.6772,9.7703,,,
 da-vittorio-q89692445,Q89692445,Da Vittorio,restaurant in Switzerland,,Via Johannes Badrutt 11,St. Moritz,Q68986,St. Moritz,st-moritz,Q68986,Switzerland,switzerland,Q39,46.4777,9.8111,,,
 dal-pescatore,Q5210133,Dal Pescatore,"restaurant in Canneto sull'Oglio, Italy",,,Canneto sull'Oglio,Q42301,,,,Italy,italy,Q38,45.1709,10.3573,http://www.dalpescatore.com,,
-daniel,Q5216318,Daniel,New French restaurant in New York City,French cuisine,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7668,-73.9676,http://www.danielnyc.com/daniel.html,,
+daniel,Q5216318,Daniel,New French restaurant in New York City,French cuisine,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7668,-73.9676,http://www.danielnyc.com/daniel.html,,
 daniel-berlin-krog,Q24207178,Daniel Berlin Krog,Swedish restaurant,,Diligensvägen 21,Tomelilla Municipality,Q515519,,,,Sweden,sweden,Q34,55.612517,13.992919,http://www.danielberlin.se,,
 daniel-berlins-krog,Q49289145,Daniel Berlins krog,Swedish restaurant,,,Skåne-Tranås,Q10671079,,,,Sweden,sweden,Q34,55.61255,13.99285556,http://www.danielberlin.se,,
 danji,Q121294687,Danji,Korean restaurant in New York City,Korean cuisine,346 West 52nd Street,New York City,Q60,New York City,new-york-city,Q60,United States,united-states,Q30,40.764166666,-73.986805555,http://danjinyc.com/,,
@@ -336,7 +336,7 @@ el-cielo,Q107531412,El Cielo,"restaurant in Washington, D.C.",Latin American cui
 el-molino-de-urdaniz,Q21572130,El Molino de Urdániz,restaurant in Spain,,,Esteribar,Q617571,,,,Spain,spain,Q29,42.909166666,-1.533888888,,,
 elbulli,Q917258,elBulli,Spanish restaurant,,,Roses,Q11822,,,,Spain,spain,Q29,42.25,3.22638889,http://www.elbulli.com/,,
 eleven,Q88806422,Eleven,restaurant in Portugal,,,Lisbon,Q597,Lisbon,lisbon,Q597,Portugal,portugal,Q45,38.7307,-9.1558,http://www.restauranteleven.com,,
-eleven-madison-park,Q5359767,Eleven Madison Park,restaurant in NYC,French cuisine,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7417,-73.9872,http://www.elevenmadisonpark.com,,
+eleven-madison-park,Q5359767,Eleven Madison Park,restaurant in NYC,French cuisine,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7417,-73.9872,http://www.elevenmadisonpark.com,,
 enigma-yorkville,Q121335351,Enigma Yorkville,"restaurant in Toronto, Ontario, Canada",,"23 St Thomas Street, Toronto, ON M5S 3E7",Toronto,Q172,Toronto,toronto,Q172,Canada,canada,Q16,43.668888888,-79.390555555,https://www.enigmayorkville.com/,ontario/toronto/restaurant/enigma-yorkville,https://guide.michelin.com/en/ontario/toronto/restaurant/enigma-yorkville
 enoteca,Q5379454,Enoteca,restaurant in Spain,,,Barcelona,Q1492,Barcelona,barcelona,Q1492,Spain,spain,Q29,41.387011111,2.196636111,,,
 enoteca-pinchiorri,Q1405579,Enoteca Pinchiorri,restaurant in Italy,Italian cuisine,,Florence,Q2044,Florence,florence,Q2044,Italy,italy,Q38,43.77,11.26222222,http://enotecapinchiorri.it/,,
@@ -447,7 +447,7 @@ hostellerie-st-nicolas,Q88964026,Hostellerie St-Nicolas,restaurant in Belgium,,,
 hostellerie-vivendum,Q89434522,Hostellerie Vivendum,restaurant in Belgium,,Vissersstraat 2,Dilsen-Stokkem,Q581246,Dilsen-Stokkem,dilsen-stokkem,Q581246,Belgium,belgium,Q31,51.0333,5.7365,,,
 hotel-alpenblick,Q90264881,Hotel Alpenblick,restaurant in Switzerland,,Oberdorfstrasse 3,Wilderswil,Q69256,,,,Switzerland,switzerland,Q39,46.66389,7.86005,http://www.hotel-alpenblick.ch/,,
 hotel-bareiss,Q21012613,Hotel Bareiss,"building in Baiersbronn, Baden-Württemberg, Germany",,,Baiersbronn,Q81241,,,,Germany,germany,Q183,48.520766,8.327738,http://www.bareiss.com,,
-hotel-cafe-royal,Q5017262,Hotel Café Royal,"hotel in London, former restaurant",French cuisine,,City of Westminster,Q179351,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.51,-0.135833,https://www.hotelcaferoyal.com/,,
+hotel-cafe-royal,Q5017262,Hotel Café Royal,"hotel in London, former restaurant",French cuisine,,City of Westminster,Q179351,,,,United Kingdom,united-kingdom,Q145,51.51,-0.135833,https://www.hotelcaferoyal.com/,,
 hotel-frederiksminde,Q21065191,Hotel Frederiksminde,hotel and restaurant in Denmark,,"Klosternakken 8, 4720 Præstø",Vordingborg Municipality,Q183572,,,,Denmark,denmark,Q35,55.1242,12.0488,http://www.frederiksminde.com,,
 house-of-tides,Q91127476,House of Tides,restaurant in the United Kingdom,,28-30 Close,Newcastle upon Tyne,Q21012735,,,,United Kingdom,united-kingdom,Q145,54.968,-1.6102,http://www.houseoftides.co.uk/,,
 huto,Q89933882,Huto,restaurant in Brazil,Japanese cuisine,Avenida Jandira 677,São Paulo,Q174,São Paulo,sao-paulo,Q174,Brazil,brazil,Q155,-23.6096,-46.6591,,sao-paulo-region/sao-paulo/restaurant/huto,https://guide.michelin.com/en/sao-paulo-region/sao-paulo/restaurant/huto
@@ -473,13 +473,13 @@ innesto,Q89433116,Innesto,restaurant in Belgium,,Grote Baan 9,Houthalen-Helchter
 inter-scaldes,Q2351267,Inter Scaldes,"restaurant in Kruiningen, the Netherlands",French cuisine,,Reimerswaal,Q10078,,,,Netherlands,netherlands,Q55,51.45696389,4.02148333,http://www.interscaldes.eu/,,
 interlude,Q92776971,Interlude,restaurant in the United Kingdom,,Brighton Road,Lower Beeding,Q24663169,,,,United Kingdom,united-kingdom,Q145,51.0194,-0.2596,https://www.restaurant-interlude.co.uk,,
 isabelle-arpin,Q66633386,Isabelle Arpin,restaurant in Belgium,,,Brussels,Q239,Brussels,brussels,Q239,Belgium,belgium,Q31,50.821944444,4.367777777,https://www.isabellearpin.com/fr/,,
-ishikawa,Q20982955,Ishikawa,"restaurant in Shinjuku-ku, Tokyo, Japan",Japanese cuisine,,Kagurazaka,Q3275957,Shinjuku,shinjuku,Q179645,Japan,japan,Q17,35.701249,139.739419,http://kagurazaka-ishikawa.co.jp/,tokyo-region/tokyo/restaurant/kagurazaka-ishikawa,https://guide.michelin.com/en/tokyo-region/tokyo/restaurant/kagurazaka-ishikawa
+ishikawa,Q20982955,Ishikawa,"restaurant in Shinjuku-ku, Tokyo, Japan",Japanese cuisine,,Kagurazaka,Q3275957,Tokyo,tokyo,Q1490,Japan,japan,Q17,35.701249,139.739419,http://kagurazaka-ishikawa.co.jp/,tokyo-region/tokyo/restaurant/kagurazaka-ishikawa,https://guide.michelin.com/en/tokyo-region/tokyo/restaurant/kagurazaka-ishikawa
 isle-of-eriska,Q91920504,Isle of Eriska,restaurant in the United Kingdom,,,Òban,Q935702,,,,United Kingdom,united-kingdom,Q145,56.5329,-5.4125,,,
 isshisoden-nakamura,Q85231174,Isshisoden Nakamura,restaurant in Japan,cuisine of Kyoto,,Nakagyō Ward,Q1075455,Kyoto,kyoto,Q34600,Japan,japan,Q17,35.0103,135.7652,http://www.kyoryori-nakamura.com/,kyoto-region/kyoto/restaurant/isshisoden-nakamura,https://guide.michelin.com/en/kyoto-region/kyoto/restaurant/isshisoden-nakamura
 jade-dragon,Q84950614,Jade Dragon,restaurant in Macau,,,Macau,Q14773,Macau,macau,Q14773,People's Republic of China,people-s-republic-of-china,Q148,22.1496,113.565,,,
 jakobs-esszimmer,Q90403373,Jakobs Esszimmer,restaurant in Switzerland,,Hauptplatz 11,Rapperswil-Jona,Q69729,Rapperswil-Jona,rapperswil-jona,Q69729,Switzerland,switzerland,Q39,47.2268,8.8166,https://www.jakob-rapperswil.ch/restaurant,,
 jay-fai,Q47206330,Jay Fai,street-side restaurant in Bangkok,Thai cuisine,327 ถนนมหาไชย แขวงสำราญราษฎร์ เขตพระนคร กรุงเทพมหานคร 10200,Samran Rat,Q15735616,Bangkok,bangkok,Q1861,Thailand,thailand,Q869,13.752568,100.504737,,,
-jean-georges,Q2604229,Jean Georges,Restaurant in New York City,French cuisine,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7691,-73.9814,http://www.jean-georges.com/,,
+jean-georges,Q2604229,Jean Georges,Restaurant in New York City,French cuisine,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7691,-73.9814,http://www.jean-georges.com/,,
 jean-francois-piege,Q18818805,Jean-François Piège,restaurant in France,,,8th arrondissement of Paris,Q270230,Paris,paris,Q90,France,france,Q142,48.8701,2.3192,http://www.jeanfrancoispiege.com/,,
 jer,Q89432404,JER,restaurant in Belgium,,Persoonstraat 16,Hasselt,Q58780,Hasselt,hasselt,Q58780,Belgium,belgium,Q31,50.9309,5.3406,,,
 joelia,Q23010011,Joelia,restaurant in Rotterdam,French cuisine,Coolsingel 5,Rotterdam,Q2680952,,,,Netherlands,netherlands,Q55,51.923705555,4.477677777,http://www.joelia.eu/,,
@@ -514,7 +514,7 @@ kitchen-table-at-bubbledogs,Q90930201,Kitchen Table at Bubbledogs,restaurant in 
 klein-paardenburg,Q6420169,Klein Paardenburg,"restaurant in Ouderkerk aan de Amstel, Netherlands",French cuisine,Amstelzijde 59,Ouder-Amstel,Q9953,,,,Netherlands,netherlands,Q55,52.297691666,4.8994,,,
 knockinaam-lodge,Q6422873,Knockinaam Lodge,"restaurant in Dumfries and Galloway, Scotland, UK",,,Dumfries and Galloway,Q126514,,,,United Kingdom,united-kingdom,Q145,54.8167,-5.08333,,,
 knystaforsen,Q112919887,Knystaforsen,restaurant in Sweden,,,Hylte Municipality,Q498477,,,,Sweden,sweden,Q34,56.957933,13.139333,https://knystaforsen.se/,,
-kohaku,Q85013496,Kohaku,restaurant in Japan,Japanese cuisine,,Kagurazaka,Q3275957,Shinjuku,shinjuku,Q179645,Japan,japan,Q17,35.7007,139.741,https://i1company.jp/en/restaurant_kohaku,tokyo-region/tokyo/restaurant/kohaku,https://guide.michelin.com/en/tokyo-region/tokyo/restaurant/kohaku
+kohaku,Q85013496,Kohaku,restaurant in Japan,Japanese cuisine,,Kagurazaka,Q3275957,Tokyo,tokyo,Q1490,Japan,japan,Q17,35.7007,139.741,https://i1company.jp/en/restaurant_kohaku,tokyo-region/tokyo/restaurant/kohaku,https://guide.michelin.com/en/tokyo-region/tokyo/restaurant/kohaku
 koka,Q19521115,Koka,restaurant in Sweden,,,Gothenburg Municipality,Q52502,,,,Sweden,sweden,Q34,57.6985,11.9656,,,
 kokkeriet,Q15043405,Kokkeriet,restaurant in Denmark,Danish cuisine / French cuisine,"Kronprinsessegade 64, 1306 København K",Copenhagen Municipality,Q504125,,,,Denmark,denmark,Q35,55.68755,12.585075,http://www.kokkeriet.dk,,
 kokotxa,Q21572088,Kokotxa,restaurant in Spain,,,San Sebastián,Q10313,,,,Spain,spain,Q29,43.323333333,-1.986944444,,,
@@ -551,7 +551,7 @@ l-eau-vive,Q66499006,L'Eau Vive,restaurant in Belgium,French cuisine,Route de Fl
 l-ecrivain,Q6455655,L'Ecrivain,restaurant in Ireland,Irish cuisine,109a Lower Baggot Street,Dublin,Q1761,Dublin,dublin,Q1761,Ireland,ireland,Q27,53.33619,-6.24847,http://www.lecrivain.com,,
 l-enclume,Q6455662,L'Enclume,restaurant in the United Kingdom,,Cavendish Street,Grange-over-Sands,Q1477163,,,,United Kingdom,united-kingdom,Q145,54.2017,-2.9539,http://www.lenclume.co.uk,,
 l-ermitage,Q90138370,L'Ermitage,restaurant in Switzerland,,Route du Village 26,Vufflens-le-Château,Q69445,,,,Switzerland,switzerland,Q39,46.5277,6.47,http://www.ravet.swiss/,vaud/vufflens-le-chteau/restaurant/l-ermitage180304,https://guide.michelin.com/en/vaud/vufflens-le-chteau/restaurant/l-ermitage180304
-l-escargot-q6455693,Q6455693,L'Escargot,French restaurant in London,,"48, Greek Street W1, City of Westminster, Greater London, W1D",City of Westminster,Q179351,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.51394698,-0.131058925,https://www.lescargot.co.uk/,,
+l-escargot-q6455693,Q6455693,L'Escargot,French restaurant in London,,"48, Greek Street W1, City of Westminster, Greater London, W1D",City of Westminster,Q179351,,,,United Kingdom,united-kingdom,Q145,51.51394698,-0.131058925,https://www.lescargot.co.uk/,,
 l-escargot-q70680472,Q70680472,L'Escargot,former restaurant in Stockholm,,Scheelegatan 8,Stockholm,Q506250,,,,Sweden,sweden,Q34,59.329722222,18.043888888,,,
 l-essentiel,Q89133633,l'Essentiel,"restaurant in Namur, Belgium",,rue Roger Clément 32,Namur,Q134121,Namur,namur,Q134121,Belgium,belgium,Q31,50.4752,4.7385,https://www.lessentiel.be,,
 l-imperatif,Q89044476,L'impératif,restaurant in Belgium,,rue d'Arondeau 29,Péruwelz,Q668630,Péruwelz,peruwelz,Q668630,Belgium,belgium,Q31,50.5247,3.5747,,,
@@ -631,7 +631,7 @@ le-1741,Q86725344,Le 1741,restaurant in France,,,Strasbourg,Q6602,Strasbourg,str
 le-1947,Q84731162,Le 1947,restaurant in France,,,Courchevel,Q26270929,,,,France,france,Q142,45.4095,6.6336,,,
 le-42,Q90156989,Le 42,,,Route de Chavalet 3,Champéry,Q70099,,,,Switzerland,switzerland,Q39,46.1822,6.8756,http://www.restaurantle42.ch/,wallis/champry/restaurant/le-42,https://guide.michelin.com/en/wallis/champry/restaurant/le-42
 le-berceau-des-sens,Q90139819,Le Berceau des Sens,restaurant in Switzerland,,Route de Cojonnex 18,Lausanne,Q807,Lausanne,lausanne,Q807,Switzerland,switzerland,Q39,46.5605,6.6834,http://www.berceau-des-sens.ch/,vaud/lausanne/restaurant/le-berceau-des-sens,https://guide.michelin.com/en/vaud/lausanne/restaurant/le-berceau-des-sens
-le-bernardin,Q6506539,Le Bernardin,restaurant in the United States,French cuisine,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7614,-73.9817,http://le-bernardin.com,,
+le-bernardin,Q6506539,Le Bernardin,restaurant in the United States,French cuisine,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7614,-73.9817,http://le-bernardin.com,,
 le-bistrot-de-lagarde,Q83887540,Le Bistrot de Lagarde,restaurant in France,,,Lagarde-d'Apt,Q1044495,,,,France,france,Q142,43.9755,5.4664,,,
 le-bocca,Q90151881,Le Bocca,restaurant in Switzerland,,Avenue Bachelin 11,Saint-Blaise,Q70424,,,,Switzerland,switzerland,Q39,47.0126,6.986,http://www.le-bocca.com/,,
 le-bois-sans-feuilles,Q84320721,Le Bois sans Feuilles,restaurant in France,,728 route de Villerest,Ouches,Q1116335,,,,France,france,Q142,46.01,3.992,http://www.troisgros.com/,,
@@ -658,7 +658,7 @@ le-coucou,Q110863996,Le Coucou,French restaurant in New York City,French cuisine
 le-faham,Q84254070,Le Faham,restaurant in France,Réunionese cuisine,,17th arrondissement of Paris,Q197297,Paris,paris,Q90,France,france,Q142,48.8855,2.3118,https://lefaham.com/,ile-de-france/paris/restaurant/le-faham-by-kelly-rangama,https://guide.michelin.com/en/ile-de-france/paris/restaurant/le-faham-by-kelly-rangama
 le-flacon,Q90137255,Le Flacon,restaurant in Switzerland,,Rue Vautier 45,Carouge,Q69364,Carouge,carouge,Q69364,Switzerland,switzerland,Q39,46.1834,6.1418,http://www.leflacon.ch/,geneve-region/carouge/restaurant/le-flacon,https://guide.michelin.com/en/geneve-region/carouge/restaurant/le-flacon
 le-gastronome,Q88979429,Le Gastronome,restaurant in Belgium,,rue de Bouillon 2,Paliseul,Q696127,,,,Belgium,belgium,Q31,49.8953,5.1178,,,
-le-gavroche,Q14955150,Le Gavroche,restaurant in the United Kingdom,French cuisine,,City of Westminster,Q179351,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.5108,-0.155,https://www.le-gavroche.co.uk/,,
+le-gavroche,Q14955150,Le Gavroche,restaurant in the United Kingdom,French cuisine,,City of Westminster,Q179351,,,,United Kingdom,united-kingdom,Q145,51.5108,-0.155,https://www.le-gavroche.co.uk/,,
 le-grand-vefour,Q2896854,Le Grand Véfour,restaurant in France,,,1st arrondissement of Paris,Q161741,Paris,paris,Q90,France,france,Q142,48.8661,2.3379,http://www.grand-vefour.com,ile-de-france/paris/restaurant/le-grand-vefour,https://guide.michelin.com/en/ile-de-france/paris/restaurant/le-grand-vefour
 le-grill,Q65197775,Le Grill,restaurant in Monaco,,Place du Casino,Monte Carlo,Q45240,Monte Carlo,monte-carlo,Q45240,Monaco,monaco,Q235,43.73854,7.42758,https://www.montecarlosbm.com/en/restaurant-monaco/the-grill,,
 le-jules-verne,Q3223818,Le Jules Verne,"restaurant located on the second floor of the Eiffel Tower, Paris",French cuisine,"2ème étage de la tour Eiffel, avenue Gustave-Eiffel, 75007 Paris, France",7th arrondissement of Paris,Q259463,Paris,paris,Q90,France,france,Q142,48.858358868,2.294511475,https://www.restaurants-toureiffel.com/fr/restaurant-jules-verne.html,,
@@ -732,11 +732,11 @@ manresa,Q6751531,Manresa,restaurant,California cuisine,,Los Gatos,Q747509,,,,Uni
 mani,Q89934886,Maní,restaurant in Brazil,,Rua Joaquim Antunes 210,São Paulo,Q174,São Paulo,sao-paulo,Q174,Brazil,brazil,Q155,-23.5663,-46.6797,,,
 marchal,Q23010101,Marchal,Danish restaurant,,,Copenhagen Municipality,Q504125,,,,Denmark,denmark,Q35,55.68038611,12.58481111,,,
 marcus,Q89045218,Marcus,restaurant in Belgium,,Kleine Klijtstraat 30,Deerlijk,Q822771,,,,Belgium,belgium,Q31,50.8488,3.3834,,,
-marea,Q6758739,Marea,restaurant in the United States,Italian cuisine,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7674,-73.9809,,,
+marea,Q6758739,Marea,restaurant in the United States,Italian cuisine,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7674,-73.9809,,,
 marienhof,Q6766136,Mariënhof,"restaurant in Amersfoort, Nederland",French cuisine,,Amersfoort,Q992,,,,Netherlands,netherlands,Q55,52.15333889,5.39043889,https://www.marienhof.nl,,
 marrees,Q116603680,Marrees,"restaurant in Weert, the Netherlands",,"Stadhuispassage 10, 6001KK Weert",Weert,Q9774,,,,Netherlands,netherlands,Q55,51.250916666,5.702916666,https://www.restaurantmarrees.nl,,
 martin-berasategi,Q12263146,Martin Berasategi,restaurant in Spain,,,Lasarte-Oria,Q932766,,,,Spain,spain,Q29,43.26666667,-2.01527778,,,
-masa,Q12408773,Masa,"Japanese, sushi restaurant in Manhattan",Japanese cuisine / sushi,10 Columbus Circle,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7681,-73.9819,http://masanyc.com,new-york-state/new-york/restaurant/masa,https://guide.michelin.com/en/new-york-state/new-york/restaurant/masa
+masa,Q12408773,Masa,"Japanese, sushi restaurant in Manhattan",Japanese cuisine / sushi,10 Columbus Circle,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7681,-73.9819,http://masanyc.com,new-york-state/new-york/restaurant/masa,https://guide.michelin.com/en/new-york-state/new-york/restaurant/masa
 masa-s-wine-bar-kitchen,Q17020508,Masa's Wine Bar & Kitchen,"Michelin-rated restaurant in San Francisco, California",French cuisine,,San Francisco,Q62,San Francisco,san-francisco,Q62,United States,united-states,Q30,37.79042,-122.40805,http://www.masasrestaurant.com/,,
 masons-arms,Q26592769,Masons Arms,"pub in Knowstone, Devon, England, UK",French cuisine,"Knowstone, Devon, EX36 4RY",Knowstone,Q2458731,,,,United Kingdom,united-kingdom,Q145,50.99554,-3.671638,https://www.masonsarmsdevon.co.uk/,,
 masseria,Q59618695,Masseria,restaurant in Washington DC,,,"Washington, D.C.",Q61,"Washington, D.C.",washington-d-c,Q61,United States,united-states,Q30,38.90991,-76.999247,https://www.masseria-dc.com,,
@@ -759,7 +759,7 @@ mijn-keuken,Q2004803,Mijn Keuken,"restaurant in Wouw, Netherlands",,,Roosendaal,
 mina,Q21571751,Mina,restaurant in Spain,,,Bilbao,Q8692,,,,Spain,spain,Q29,43.254722222,-2.924444444,,,
 minibar,Q59353371,Minibar,"restaurant in Washington, D.C.",,,"Washington, D.C.",Q61,"Washington, D.C.",washington-d-c,Q61,United States,united-states,Q30,38.896449,-77.023605,https://www.minibarbyjoseandres.com/,,
 mint-restaurant,Q2675934,Mint Restaurant,Restaurant in Nigeria,,,,,,,,Ireland,ireland,Q27,53.3248,-6.25409,http://mintrestaurant.ie/index.htm,,
-mirabelle-q14955155,Q14955155,Mirabelle,restaurant in the Mayfair area of London,European cuisine,,Curzon Street,Q5196144,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.5075,-0.145278,,,
+mirabelle-q14955155,Q14955155,Mirabelle,restaurant in the Mayfair area of London,European cuisine,,Curzon Street,Q5196144,,,,United Kingdom,united-kingdom,Q145,51.5075,-0.145278,,,
 mirabelle-q6872304,Q6872304,Mirabelle,Dutch restaurant,,,Breda,Q9822,,,,Netherlands,netherlands,Q55,51.566111,4.745344,http://www.restaurantmirabelle.nl,,
 mirador-de-ulia,Q21572092,Mirador de Ulía,restaurant in Spain,,,San Sebastián,Q10313,,,,Spain,spain,Q29,43.328722222,-1.967666666,,,
 miramar-restaurant,Q127787757,Miramar (restaurant),,,"Passeig Marítim, 7, Llançà",Llançà,Q11339,,,,Spain,spain,Q29,42.371063888,3.160147222,https://www.restaurantmiramar.com,,
@@ -779,7 +779,7 @@ mr,Q23766764,MR,Danish restaurant,,,Copenhagen Municipality,Q504125,,,,Denmark,d
 mraz-sohn,Q88956230,Mraz & Sohn,restaurant in Austria,,"Wallensteinstraße 59, 1200 Wien, Austria",Vienna,Q1741,Vienna,vienna,Q1741,Austria,austria,Q40,48.2313,16.3761,https://www.mrazundsohn.at/,,
 mugaritz,Q2920332,Mugaritz,"restaurant in Errenteria, Spain",,,Errenteria,Q681893,Errenteria,errenteria,Q681893,Spain,spain,Q29,43.272222,-1.917222,http://www.mugaritz.com,,
 muller,Q15260209,Muller,"restaurant located in Groningen, in the Netherlands",French cuisine,Grote Kromme Elleboog 13,Groningen,Q892526,,,,Netherlands,netherlands,Q55,53.21818333,6.56217778,http://www.restaurantmuller.nl/,,
-murano,Q16895543,Murano,restaurant in the United Kingdom,,"20 Queen Street, Mayfair, London W1J 5PP",City of Westminster / London,Q179351 / Q84,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.5072,-0.147222,http://www.muranolondon.com/,,
+murano,Q16895543,Murano,restaurant in the United Kingdom,,"20 Queen Street, Mayfair, London W1J 5PP",City of Westminster / London,Q179351 / Q84,London,london,Q84,United Kingdom,united-kingdom,Q145,51.5072,-0.147222,http://www.muranolondon.com/,,
 metier,Q59618696,Métier,restaurant in Washington DC,,,"Washington, D.C.",Q61,"Washington, D.C.",washington-d-c,Q61,United States,united-states,Q30,38.903779,-77.021648,http://metierdc.com/,,
 nakashima,Q85114033,Nakashima,restaurant in Japan,Japanese cuisine,,Higashi-Hakushima-chō,Q28684155,Hiroshima,hiroshima,Q34664,Japan,japan,Q17,34.4056,132.465,http://nakashima-ryori.com/,,
 narisawa,Q6529391,Narisawa,restaurant in Japan,French cuisine,,Minami-Aoyama,Q11408761,Tokyo,tokyo,Q1490,Japan,japan,Q17,35.671389,139.721983,https://www.narisawa-yoshihiro.com/,tokyo-region/tokyo/restaurant/narisawa,https://guide.michelin.com/en/tokyo-region/tokyo/restaurant/narisawa
@@ -843,7 +843,7 @@ pelegrini,Q88298636,Pelegrini,restaurant in Croatia,,,Šibenik,Q3549,Šibenik,si
 pensons,Q91126501,Pensons,restaurant in the United Kingdom,,,Tenbury Wells,Q2274623,,,,United Kingdom,united-kingdom,Q145,52.2579,-2.5328,https://www.pensons.co.uk/,,
 per-se,Q1255039,Per Se,restaurant in Manhattan,French cuisine,,New York City,Q60,New York City,new-york-city,Q60,United States,united-states,Q30,40.7687,-73.9829,http://www.perseny.com/,new-york-state/new-york/restaurant/per-se,https://guide.michelin.com/en/new-york-state/new-york/restaurant/per-se
 perceel,Q3077367,Perceel,"restaurant in Capelle aan den IJssel, the Netherlands",French cuisine,,Capelle aan den IJssel,Q734860,,,,Netherlands,netherlands,Q55,51.922,4.5848,http://restaurantperceel.nl/,,
-peter-luger-steak-house,Q586599,Peter Luger Steak House,restaurant,,,Brooklyn,Q18419,Brooklyn,brooklyn,Q18419,United States,united-states,Q30,40.7099,-73.9626,https://peterluger.com/,,
+peter-luger-steak-house,Q586599,Peter Luger Steak House,restaurant,,,Brooklyn,Q18419,New York City,new-york-city,Q60,United States,united-states,Q30,40.7099,-73.9626,https://peterluger.com/,,
 pfefferschiff,Q37798919,Pfefferschiff,"building in Hallwang, Austria",,Söllheim 3,Hallwang,Q264843,,,,Austria,austria,Q40,47.83819,13.07854,,,
 philippe-fauchet,Q89426346,Philippe Fauchet,restaurant in Belgium,,rue de Warfée 62,Saint-Georges-sur-Meuse,Q710718,,,,Belgium,belgium,Q31,50.6096,5.371,,,
 philippe-meyers,Q88978172,Philippe Meyers,restaurant in Belgium,,rue Doyen Van Belle 6,Braine-l'Alleud,Q497572,,,,Belgium,belgium,Q31,50.6824,4.3701,,,
@@ -871,7 +871,7 @@ pru,Q95591314,Pru,restaurant in Thailand,,,Phuket,Q844430,Phuket,phuket,Q844430,
 publiek,Q88975941,Publiek,restaurant in Belgium,,Ham 39,Ghent,Q1296,Ghent,ghent,Q1296,Belgium,belgium,Q31,51.0578,3.7329,,,
 pure-c,Q2005773,Pure C,,,Blvd de Wielingen 49,Sluis,Q10080,,,,Netherlands,netherlands,Q55,51.37825,3.38754,http://www.pure-c.nl/,,
 purnell-s,Q92985058,Purnell's,restaurant in the United Kingdom,,55 Cornwall Street,Birmingham,Q2256,Birmingham,birmingham,Q2256,United Kingdom,united-kingdom,Q145,52.4826,-1.9018,http://www.purnellsrestaurant.com/,,
-petrus,Q7264737,Pétrus,Restaurant owned by Gordon Ramsay,French cuisine,,City of Westminster,Q179351,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.49961,-0.15685,http://www.gordonramsay.com/petrus/,,
+petrus,Q7264737,Pétrus,Restaurant owned by Gordon Ramsay,French cuisine,,City of Westminster,Q179351,,,,United Kingdom,united-kingdom,Q145,51.49961,-0.15685,http://www.gordonramsay.com/petrus/,,
 q10578328,Q10578328,Q10578328,,,,Stockholm,Q506250,,,,Sweden,sweden,Q34,59.32933333,18.07644444,http://www.mathiasdahlgren.com/,,
 q108598500,Q108598500,Q108598500,,,,Gothenburg Municipality,Q52502,,,,Sweden,sweden,Q34,57.698055555,11.9825,,,
 q1105811,Q1105811,Q1105811,"restaurant in Berkeley, United States",California cuisine,1517 Shattuck Avenue,Berkeley,Q484678,Berkeley,berkeley,Q484678,United States,united-states,Q30,37.879580555,-122.269016666,http://www.chezpanisse.com/,,
@@ -918,7 +918,7 @@ restaurant-212,Q107096159,Restaurant 212,"Michelin star restaurant in Amsterdam,
 restaurant-alouette,Q61755650,Restaurant Alouette,Danish restaurant,,"Sturlasgade 14P, 1., 2300 København S",Copenhagen Municipality,Q504125,,,,Denmark,denmark,Q35,55.662455,12.5758112,http://www.restaurantalouette.dk,,
 restaurant-andrew-fairlie,Q27062790,Restaurant Andrew Fairlie,restaurant in the Gleneagles Hotel,British cuisine / French cuisine,,Perth and Kinross,Q207679,,,,United Kingdom,united-kingdom,Q145,56.2832,-3.752,http://www.andrewfairlie.co.uk/,,
 restaurant-apicius,Q7316080,Restaurant Apicius,Dutch Michelin-starred restaurant,,,Castricum,Q9910,,,,Netherlands,netherlands,Q55,52.55873889,4.65643611,http://www.restaurantapicius.com/,,
-restaurant-aquavit,Q7316081,Restaurant Aquavit,restaurant in the United States,,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7608,-73.9722,,,
+restaurant-aquavit,Q7316081,Restaurant Aquavit,restaurant in the United States,,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7608,-73.9722,,,
 restaurant-can-bosch,Q21402458,Restaurant Can Bosch,restaurant in Spain,,,Cambrils,Q828572,,,,Spain,spain,Q29,41.0671,1.0591,http://canbosch.com/,,
 restaurant-chestnut,Q60748240,Restaurant Chestnut,"restaurant in Ballydehob, West Cork, Ireland",Irish cuisine,,Ballydehob,Q805407,,,,Ireland,ireland,Q27,51.5625,-9.4608,,,
 restaurant-christopher-coutanceau,Q84767946,restaurant Christopher Coutanceau,restaurant in France,,,La Rochelle,Q82185,La Rochelle,la-rochelle,Q82185,France,france,Q142,46.1553,-1.16,,,
@@ -1019,7 +1019,7 @@ sinne,Q23306259,Sinne,restaurant in the Netherlands,French cuisine,Ceintuurbaan 
 sir-kwinten,Q88976780,Sir Kwinten,restaurant in Belgium,,Markt 9a,Lennik,Q912022,,,,Belgium,belgium,Q31,50.8055,4.1554,,,
 siren,Q59618700,Siren,former restaurant in Washington DC,,,"Washington, D.C.",Q61,"Washington, D.C.",washington-d-c,Q61,United States,united-states,Q30,38.907938,-77.035541,http://rwrestaurantgroup.com/restaurants/siren-by-rw/,,
 sk-mat-manniskor,Q19521117,SK Mat & Människor,restaurant in Sweden,,,Gothenburg Municipality,Q52502,,,,Sweden,sweden,Q34,57.6972,11.9831,,,
-sketch,Q14955160,Sketch,"restaurant in Mayafir, Westminster, London, England",French cuisine,,City of Westminster,Q179351,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.5128,-0.141593,https://sketch.london/,,
+sketch,Q14955160,Sketch,"restaurant in Mayafir, Westminster, London, England",French cuisine,,City of Westminster,Q179351,,,,United Kingdom,united-kingdom,Q145,51.5128,-0.141593,https://sketch.london/,,
 slagmolen,Q88966870,Slagmolen,restaurant in Belgium,,,Oudsbergen,Q41795471,,,,Belgium,belgium,Q31,51.0432,5.6159,https://slagmolen.be,,
 smyth,Q55633370,Smyth,"restaurant in Chicago, Illinois",,,,,,,,United States,united-states,Q30,41.885277777,-87.660583333,,,
 soigne,Q2690074,Soigné,"Restaurant in Bussum, Netherlands",,,Gooise Meren,Q18335889,,,,Netherlands,netherlands,Q55,52.274483,5.164594,http://www.restaurantsoigne.nl/index.html,,
@@ -1052,7 +1052,7 @@ sukiyabashi-jiro,Q7635863,Sukiyabashi Jiro,"sushi restaurant in Ginza, Chūō, T
 sushi-gyoten,Q85114837,Sushi Gyoten,restaurant in Japan,Japanese cuisine,,Hirao,Q11482439,Fukuoka,fukuoka,Q26600,Japan,japan,Q17,33.5804,130.4012,,,
 sushi-masaki-saito,Q114289242,Sushi Masaki Saito,Japanese restaurant,,"88 Avenue Road, Toronto, ON, Canada M5R 2H2",Toronto,Q172,Toronto,toronto,Q172,Canada,canada,Q16,43.672277777,-79.395805555,https://www.masakisaito.ca/,ontario/toronto/restaurant/sushi-masaki-saito,https://guide.michelin.com/en/ontario/toronto/restaurant/sushi-masaki-saito
 sushi-nakazawa,Q73785844,Sushi Nakazawa,restaurant in Washington DC,,,"Washington, D.C.",Q61,"Washington, D.C.",washington-d-c,Q61,United States,united-states,Q30,38.894666666,-77.027,https://www.sushinakazawa.com/washington-dc,district-of-columbia/washington-dc/restaurant/sushi-nakazawa1160153,https://guide.michelin.com/en/district-of-columbia/washington-dc/restaurant/sushi-nakazawa1160153
-sushi-of-gari,Q7648933,Sushi of Gari,Japanese sushi restaurant in New York City,Japanese cuisine,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7714,-73.9527,https://www.sushiofgari.com/,,
+sushi-of-gari,Q7648933,Sushi of Gari,Japanese sushi restaurant in New York City,Japanese cuisine,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7714,-73.9527,https://www.sushiofgari.com/,,
 sushi-saito,Q7648919,Sushi Saito,"Japanese cuisine restaurant in Minato, Tokyo",Japanese cuisine,,Roppongi,Q265071,Tokyo,tokyo,Q1490,Japan,japan,Q17,35.6658,139.7394,,,
 sushi-sakai,Q85116896,Sushi Sakai,restaurant in Japan,Japanese cuisine,,Nishi-nakasu,Q11627118,Fukuoka,fukuoka,Q26600,Japan,japan,Q17,33.5904,130.406,https://sakai-sushi.jp/,,
 sushi-shikon,Q84942897,Sushi Shikon,restaurant in Hong Kong,Japanese cuisine,,Hong Kong,Q8646,Hong Kong,hong-kong,Q8646,People's Republic of China,people-s-republic-of-china,Q148,22.2805,114.1579,https://sushi-shikon.com/,hong-kong-region/hong-kong/restaurant/sushi-shikon,https://guide.michelin.com/en/hong-kong-region/hong-kong/restaurant/sushi-shikon
@@ -1090,7 +1090,7 @@ the-coventry-cross-inn-the-north-east-section,Q26286858,The Coventry Cross Inn (
 the-crown,Q91925509,The Crown,"restaurant in Burchetts Green, Berkshire, England",,Burchett's Green,Hurley,Q8546656,,,,United Kingdom,united-kingdom,Q145,51.5248,-0.7914,http://www.thecrownburchettsgreen.com/,,
 the-dabney,Q59052664,The Dabney,"restaurant in Washington, D.C.",cuisine of the United States,,"Washington, D.C.",Q61,"Washington, D.C.",washington-d-c,Q61,United States,united-states,Q30,38.906453,-77.024769,https://thedabney.com/,,
 the-dining-room,Q91029722,The Dining Room,restaurant in the United Kingdom,,,Brokenborough,Q2418724,,,,United Kingdom,united-kingdom,Q145,51.5837,-2.1492,,,
-the-dorchester,Q2749941,The Dorchester,"hotel on Park Lane and Deanery Street, London",,,City of Westminster,Q179351,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.507222222,-0.1525,https://www.dorchestercollection.com/en/london/the-dorchester,,
+the-dorchester,Q2749941,The Dorchester,"hotel on Park Lane and Deanery Street, London",,,City of Westminster,Q179351,,,,United Kingdom,united-kingdom,Q145,51.507222222,-0.1525,https://www.dorchestercollection.com/en/london/the-dorchester,,
 the-eight,Q84953552,The Eight,restaurant in Macau,,,Macau,Q14773,Macau,macau,Q14773,People's Republic of China,people-s-republic-of-china,Q148,22.1909,113.5435,,,
 the-elephant,Q7761482,The Elephant,"restaurant located in Torquay, Devon, England",British cuisine,3-4 Beacon Terrace,Torquay,Q209055,,,,United Kingdom,united-kingdom,Q145,50.4587,-3.5246,http://www.elephantrestaurant.co.uk/,,
 the-fat-duck,Q2300919,The Fat Duck,"restaurant in Bray, Windsor and Maidenhead, Berkshire, England, UK",,"High St, Bray, SL6 2AQ, UK",Bray,Q2924158,,,,United Kingdom,united-kingdom,Q145,51.50793,-0.701764,http://www.fatduck.co.uk/,,
@@ -1157,7 +1157,7 @@ twentsche-hoeve,Q7857717,Twentsche Hoeve,"restaurant in Overijssel, Netherlands"
 twins-garden-restaurant,Q105698899,Twins Garden Restaurant,,,"125009, МОСКВА, СТРАСТНОЙ БУЛЬВАР, 8А",Moscow,Q649,Moscow,moscow,Q649,Russia,russia,Q159,,,http://twinsgarden.ru,,
 tyvenkokkenhanskoneoghendeselsker,Q23017664,TyvenKokkenHansKoneOgHendesElsker,former restaurant in Denmark,,,Copenhagen Municipality,Q504125,,,,Denmark,denmark,Q35,55.67629722,12.57513333,,,
 uliassi,Q84266969,Uliassi,restaurant in Italy,,banchina di Levante 6,Senigallia,Q124925,,,,Italy,italy,Q38,43.7195,13.2208,http://www.uliassi.it/,,
-umu,Q90927701,Umu,"Japanese restaurant in London, United Kingdom",Japanese cuisine,,City of Westminster,Q179351,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.5114,-0.1443,https://www.umurestaurant.com/,greater-london/london/restaurant/umu,https://guide.michelin.com/en/greater-london/london/restaurant/umu
+umu,Q90927701,Umu,"Japanese restaurant in London, United Kingdom",Japanese cuisine,,City of Westminster,Q179351,,,,United Kingdom,united-kingdom,Q145,51.5114,-0.1443,https://www.umurestaurant.com/,greater-london/london/restaurant/umu,https://guide.michelin.com/en/greater-london/london/restaurant/umu
 under,Q62540608,Under,building designed by Snøhetta,,Bålyveien 48,Lindesnes Municipality,Q80571266,,,,Norway,norway,Q20,58.040805555,7.154305555,https://under.no/,,
 under-grain,Q88292358,Under Grain,restaurant in Malta,,,Valletta,Q23800,Valletta,valletta,Q23800,Malta,malta,Q233,35.8989,14.5154,http://www.grain.mt/,,
 urasawa,Q19903767,Urasawa,restaurant in the United States,Japanese cuisine,,Beverly Hills,Q127856,Beverly Hills,beverly-hills,Q127856,United States,united-states,Q30,34.067398,-118.400677,,california/us-los-angeles/restaurant/urasawa,https://guide.michelin.com/en/california/us-los-angeles/restaurant/urasawa
@@ -1165,7 +1165,7 @@ va-doux-vent,Q2661716,Va Doux Vent,"restaurant in Uccle, Belgium",French cuisine
 valuas,Q2049697,Valuas,"restaurant in Venio, Netherlands",,,Venlo,Q9777,,,,Netherlands,netherlands,Q55,51.3793,6.16694,https://www.valuas-hr.nl/en/,,
 variety-jones,Q85812799,Variety Jones,restaurant in Ireland,fusion cuisine,,Dublin,Q1761,Dublin,dublin,Q1761,Ireland,ireland,Q27,53.343,-6.2762,http://www.varietyjones.ie/,,
 varoulko-seaside,Q88389150,Varoulko Seaside,restaurant in Greece,,Ακτή Αλέξανδρου Κουμουνδούρου 54,Piraeus,Q58976,Piraeus,piraeus,Q58976,Greece,greece,Q41,37.9373,23.6585,https://varoulko.gr/,,
-veeraswamy,Q7918202,Veeraswamy,Indian restaurant in London,Indian cuisine,,City of Westminster / London,Q179351 / Q84,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.51,-0.138056,http://www.veeraswamy.com,,
+veeraswamy,Q7918202,Veeraswamy,Indian restaurant in London,Indian cuisine,,City of Westminster / London,Q179351 / Q84,London,london,Q84,United Kingdom,united-kingdom,Q145,51.51,-0.138056,http://www.veeraswamy.com,,
 vendome,Q7919630,Vendôme,"restaurant in Bergisch Gladbach, DE",,,Bergisch Gladbach,Q3117,Bergisch Gladbach,bergisch-gladbach,Q3117,Germany,germany,Q183,50.9662,7.1606,http://www.schlossbensberg.com/en/restaurant-vendome,,
 via-veneto,Q7924401,Via Veneto,Restaurant in Spain,,"Carrer de Ganduxer, 10",Barcelona / Sant Gervasi-Galvany,Q1492 / Q3389521,Barcelona,barcelona,Q1492,Spain,spain,Q29,41.3925,2.1392,http://www.viaveneto.es,,
 victor-s-fine-dining,Q84433181,Victor's Fine Dining,restaurant in Germany,,Schloßstraße 27,Perl,Q662505,Perl,perl,Q662505,Germany,germany,Q183,49.5349,6.3868,,,
@@ -1185,7 +1185,7 @@ vreugd-en-rust,Q7942714,Vreugd en Rust,"former restaurant located in Voorburg, N
 vrijmoed,Q88965572,Vrijmoed,restaurant in Belgium,,,Ghent,Q1296,Ghent,ghent,Q1296,Belgium,belgium,Q31,51.0511,3.7288,,,
 waldhotel-sonnora,Q84362576,Waldhotel Sonnora,restaurant in Germany,,,Dreis,Q563974,,,,Germany,germany,Q183,49.9378,6.8112,http://www.hotel-sonnora.de,,
 walter-bauer,Q88899421,Walter Bauer,restaurant in Austria,,Sonnenfelsgasse 17,Vienna,Q1741,Vienna,vienna,Q1741,Austria,austria,Q40,48.2093,16.3769,,,
-wd-50,Q1255057,wd~50,former restaurant in New York City,,,Manhattan,Q11299,Manhattan,manhattan,Q11299,United States,united-states,Q30,40.7196,-73.9846,http://wd-50.com/,,
+wd-50,Q1255057,wd~50,former restaurant in New York City,,,Manhattan,Q11299,New York City,new-york-city,Q60,United States,united-states,Q30,40.7196,-73.9846,http://wd-50.com/,,
 wiesen,Q22572507,Wiesen,"restaurant in Eindhoven, the Netherlands",,,Eindhoven,Q9832,Eindhoven,eindhoven,Q9832,Netherlands,netherlands,Q55,51.437828,5.475263,http://www.wiesen-restaurant.nl,,
 wild-honey-inn,Q41532936,Wild Honey Inn,"restaurant in Lisdoonvarna, Ireland",,,Lisdoonvarna,Q1005113,,,,Ireland,ireland,Q27,53.028592,-9.295839,http://www.wildhoneyinn.com/,,
 wilgenplas,Q8002053,Wilgenplas,"restaurant in Maarssen, the Netherlands",,,Stichtse Vecht,Q10042,,,,Netherlands,netherlands,Q55,52.1466,5.06141,,,
@@ -1200,7 +1200,7 @@ wy,Q15883643,WY,"former restaurant in Brussels, Belgium",French cuisine,Bodenbro
 xiquet,Q107531276,Xiquet,restaurant in Washington DC,,,"Washington, D.C.",Q61,"Washington, D.C.",washington-d-c,Q61,United States,united-states,Q30,38.921350338,-77.072404059,https://www.xiquetdl.com/,,
 yamazaki,Q85028044,Yamazaki,restaurant in Japan,Japanese cuisine,,Kyōbashi,Q1795217,Tokyo,tokyo,Q1490,Japan,japan,Q17,36.6748,137.201,https://www.yamazaki-toyama.co.jp/,,
 yamazato,Q8048010,Yamazato,"restaurant inside the Okura hotel, in Amsterdam, the Netherlands",,,Amsterdam,Q9899,,,,Netherlands,netherlands,Q55,52.3484,4.89361,https://www.okura.nl/nl/yamazato,noord-holland/amsterdam/restaurant/yamazato115431,https://guide.michelin.com/en/noord-holland/amsterdam/restaurant/yamazato115431
-yauatcha,Q8050323,Yauatcha,"Chinese restaurant in Soho, London",,,City of Westminster / London,Q179351 / Q84,City of Westminster,city-of-westminster,Q179351,United Kingdom,united-kingdom,Q145,51.5138,-0.135167,http://www.yauatcha.com/,,
+yauatcha,Q8050323,Yauatcha,"Chinese restaurant in Soho, London",,,City of Westminster / London,Q179351 / Q84,London,london,Q84,United Kingdom,united-kingdom,Q145,51.5138,-0.135167,http://www.yauatcha.com/,,
 ynyshir,Q91920267,Ynyshir,restaurant in the United Kingdom,,Eglwysfach,Ceredigion / Wales / Machynlleth,Q217829 / Q25 / Q675460,,,,United Kingdom,united-kingdom,Q145,52.5447,-3.9449,http://www.ynyshir.co.uk/,,
 yoshi,Q56299601,Yoshi,Japanese restaurant in Monaco,Japanese cuisine,4 avenue de la Madone,Monte Carlo,Q45240,Monte Carlo,monte-carlo,Q45240,Monaco,monaco,Q235,43.7408,7.428,,monaco-region/monaco/restaurant/yoshi,https://guide.michelin.com/en/monaco-region/monaco/restaurant/yoshi
 yukimura,Q20983166,Yukimura,"restaurant in Tokyo, Japan",Japanese cuisine,,Azabu-Jūban,Q4832008,Tokyo,tokyo,Q1490,Japan,japan,Q17,35.6573,139.7329,,,

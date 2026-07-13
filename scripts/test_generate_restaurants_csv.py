@@ -51,6 +51,122 @@ class GeneratorTests(unittest.TestCase):
 
         self.assertEqual(nearest_city(["Q10"], entities, cities), "Q20")
 
+    def test_skips_a_borough_even_when_it_also_has_a_city_type(self):
+        entities = {
+            "Q11299": {"claims": {"P131": [claim("Q60")], "P31": [claim("Q408804"), claim("Q3301053")]}},
+            "Q60": {"claims": {"P31": [claim("Q515")]}},
+        }
+        types = {
+            "Q408804": {"claims": {}},
+            "Q3301053": {"claims": {"P279": [claim("Q515")]}},
+            "Q515": {"claims": {}},
+        }
+
+        cities = city_entity_ids(entities, types)
+
+        self.assertNotIn("Q11299", cities)
+        self.assertEqual(nearest_city(["Q11299"], entities, cities), "Q60")
+
+    def test_skips_a_special_ward_and_resolves_its_parent_city(self):
+        entities = {
+            "Q179645": {"claims": {"P131": [claim("Q1490")], "P31": [claim("Q5327704"), claim("Q900")]}},
+            "Q1490": {"claims": {"P31": [claim("Q515")]}},
+        }
+        types = {
+            "Q5327704": {"claims": {}},
+            "Q900": {"claims": {"P279": [claim("Q515")]}},
+            "Q515": {"claims": {}},
+        }
+
+        cities = city_entity_ids(entities, types)
+
+        self.assertEqual(nearest_city(["Q179645"], entities, cities), "Q1490")
+
+    def test_skips_an_exact_neighborhood_classification(self):
+        entities = {
+            "Q10": {"claims": {"P131": [claim("Q20")], "P31": [claim("Q123705"), claim("Q904")]}},
+            "Q20": {"claims": {"P31": [claim("Q515")]}},
+        }
+        types = {
+            "Q123705": {"claims": {}},
+            "Q904": {"claims": {"P279": [claim("Q515")]}},
+            "Q515": {"claims": {}},
+        }
+
+        cities = city_entity_ids(entities, types)
+
+        self.assertNotIn("Q10", cities)
+        self.assertEqual(nearest_city(["Q10"], entities, cities), "Q20")
+
+    def test_leaves_a_rejected_subcity_without_a_parent_city_unassigned(self):
+        entities = {
+            "Q179351": {"claims": {"P131": [claim("Q23306")], "P31": [claim("Q211690"), claim("Q515")]}},
+            "Q23306": {"claims": {"P31": [claim("Q901")]}},
+        }
+        types = {
+            "Q211690": {"claims": {}},
+            "Q515": {"claims": {}},
+            "Q901": {"claims": {}},
+        }
+
+        cities = city_entity_ids(entities, types)
+
+        self.assertNotIn("Q179351", cities)
+        self.assertEqual(nearest_city(["Q179351"], entities, cities), "")
+
+    def test_keeps_a_genuine_city_even_when_its_parent_is_city_like(self):
+        entities = {
+            "Q456": {"claims": {"P131": [claim("Q16665897")], "P31": [claim("Q902")]}},
+            "Q16665897": {"claims": {"P31": [claim("Q903")]}},
+        }
+        types = {
+            "Q902": {"claims": {"P279": [claim("Q515")]}},
+            "Q903": {"claims": {"P279": [claim("Q515")]}},
+            "Q515": {"claims": {}},
+        }
+
+        cities = city_entity_ids(entities, types)
+
+        self.assertEqual(nearest_city(["Q456"], entities, cities), "Q456")
+
+    def test_preserves_restaurant_identity_coordinates_and_locality_when_regrouping(self):
+        aggregated = aggregate_bindings(
+            [
+                {
+                    "restaurant": {"value": "http://www.wikidata.org/entity/Q1"},
+                    "restaurantLabel": {"value": "Manhattan Table"},
+                    "location": {"value": "http://www.wikidata.org/entity/Q11299"},
+                    "locationLabel": {"value": "Manhattan"},
+                    "coord": {"value": "Point(-73.98 40.76)"},
+                }
+            ]
+        )
+        entities = {
+            "Q11299": {
+                "claims": {"P131": [claim("Q60")], "P31": [claim("Q408804"), claim("Q3301053")]},
+                "labels": {"en": {"value": "Manhattan"}},
+            },
+            "Q60": {
+                "claims": {"P31": [claim("Q515")]},
+                "labels": {"en": {"value": "New York City"}},
+            },
+        }
+        types = {
+            "Q408804": {"claims": {}},
+            "Q3301053": {"claims": {"P279": [claim("Q515")]}},
+            "Q515": {"claims": {}},
+        }
+
+        rows = finalize_rows(aggregated, entities, types)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["wikidata_id"], "Q1")
+        self.assertEqual(rows[0]["id"], "manhattan-table")
+        self.assertEqual((rows[0]["latitude"], rows[0]["longitude"]), ("40.76", "-73.98"))
+        self.assertEqual((rows[0]["locality"], rows[0]["locality_wikidata_id"]), ("Manhattan", "Q11299"))
+        self.assertEqual((rows[0]["city"], rows[0]["city_wikidata_id"]), ("New York City", "Q60"))
+        validate_rows(rows, {"Q1"})
+
     def test_disambiguates_duplicate_readable_slugs(self):
         self.assertEqual(
             unique_slugs({"Q1": "Springfield", "Q2": "Springfield"}),

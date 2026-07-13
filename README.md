@@ -16,7 +16,7 @@ The generator queries Wikidata for every item that:
 - are a `restaurant` (`Q11707`) or one of its subclasses
 - may optionally have a `Michelin Restaurants ID` (`P4160`)
 
-The auditable query lives in `scripts/wikidata_restaurants.sparql`. Location ancestry is resolved through the Wikidata API so the export can identify the nearest city-class entity without inferring one from an address or external guide URL.
+The auditable query lives in `scripts/wikidata_restaurants.sparql`. Location ancestry is resolved through the Wikidata API so the export can identify the nearest canonical city without inferring one from an address or external guide URL.
 
 The refresh writes `public/data/restaurants.csv` and `public/data/metadata.json` only after the complete result passes validation. If Wikidata or validation fails, the previous public snapshot is left untouched.
 
@@ -25,7 +25,8 @@ Source contract and limits:
 - Wikidata is the sole source for restaurant membership and metadata. There are no Wikipedia, Michelin-page, Algolia, geocoding, or generated-description fallbacks.
 - Missing country, city, address, coordinates, website, cuisine, description, and Michelin ID values stay missing.
 - `P166 = Q20824563` records that a Michelin star award exists; it does not reliably provide a current 1/2/3-star tier or prove that the restaurant is still operating.
-- A city is the nearest `P131` ancestor whose type descends from `city` (`Q515`). Restaurants without one remain in the dataset without an invented city.
+- A canonical city is the nearest `P131` location whose type descends from `city` (`Q515`) after boroughs, wards, city districts, and exact neighborhood classifications are rejected. Resolution continues through rejected sub-city entities to a qualifying parent city.
+- The excluded Wikidata class IDs are published in `metadata.json`. A sub-city classification wins over a simultaneous city-like classification; if no qualifying parent exists, the city stays missing.
 - The CSV is a dated snapshot until `make data` is run again.
 
 ## Commands

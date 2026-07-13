@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-13T19:46:43Z",
+  "generated_at": "2026-07-13T23:09:23Z",
   "source": {
     "name": "Wikidata",
     "query_file": "scripts/wikidata_restaurants.sparql",
@@ -8,17 +8,50 @@
     "instance_of_item": "Q11707",
     "michelin_id_property": "P4160",
     "michelin_id_required": false,
+    "canonical_city": {
+      "hierarchy_property": "P131",
+      "city_class": "Q515",
+      "excluded_subcity_class_roots": [
+        {
+          "id": "Q408804",
+          "name": "borough of New York City"
+        },
+        {
+          "id": "Q211690",
+          "name": "London borough"
+        },
+        {
+          "id": "Q5327704",
+          "name": "special ward of Japan"
+        },
+        {
+          "id": "Q4286337",
+          "name": "city district"
+        },
+        {
+          "id": "Q1195098",
+          "name": "ward"
+        }
+      ],
+      "excluded_exact_classes": [
+        {
+          "id": "Q123705",
+          "name": "neighborhood"
+        }
+      ],
+      "fallbacks": []
+    },
     "fallback_sources": []
   },
   "counts": {
     "restaurants": 1221,
     "countries": 39,
-    "cities": 194,
+    "cities": 190,
     "mapped_restaurants": 1204
   },
   "missing": {
     "country": 2,
-    "city": 648,
+    "city": 656,
     "coordinates": 17,
     "address": 699,
     "michelin_id": 1122

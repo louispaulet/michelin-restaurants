@@ -27,6 +27,15 @@ WIKIDATA_API_ENDPOINT = "https://www.wikidata.org/w/api.php"
 USER_AGENT = "michelin-restaurants/0.2 (https://github.com/louispaulet/michelin-restaurants)"
 MICHELIN_BASE_URL = "https://guide.michelin.com/en"
 CITY_ITEM = "Q515"
+NEIGHBORHOOD_ITEM = "Q123705"
+SUBCITY_CLASS_ROOTS = {
+    "Q408804": "borough of New York City",
+    "Q211690": "London borough",
+    "Q5327704": "special ward of Japan",
+    "Q4286337": "city district",
+    "Q1195098": "ward",
+}
+EXACT_SUBCITY_CLASSES = {NEIGHBORHOOD_ITEM: "neighborhood"}
 ENTITY_BATCH_SIZE = 50
 
 FIELDS = [
@@ -166,24 +175,49 @@ def statement_entity_ids(entity: dict[str, Any], property_id: str) -> set[str]:
     return ids
 
 
-def type_descends_from_city(type_id: str, types: dict[str, dict[str, Any]], memo: dict[str, bool]) -> bool:
-    if type_id == CITY_ITEM:
+def type_descends_from(
+    type_id: str,
+    ancestor_id: str,
+    types: dict[str, dict[str, Any]],
+    memo: dict[tuple[str, str], bool],
+) -> bool:
+    if type_id == ancestor_id:
         return True
-    if type_id in memo:
-        return memo[type_id]
-    memo[type_id] = False
-    memo[type_id] = any(
-        type_descends_from_city(parent, types, memo)
+    memo_key = (type_id, ancestor_id)
+    if memo_key in memo:
+        return memo[memo_key]
+    memo[memo_key] = False
+    memo[memo_key] = any(
+        type_descends_from(parent, ancestor_id, types, memo)
         for parent in statement_entity_ids(types.get(type_id, {}), "P279")
     )
-    return memo[type_id]
+    return memo[memo_key]
+
+
+def entity_is_subcity(
+    entity: dict[str, Any],
+    types: dict[str, dict[str, Any]],
+    memo: dict[tuple[str, str], bool],
+) -> bool:
+    instance_types = statement_entity_ids(entity, "P31")
+    if instance_types & set(EXACT_SUBCITY_CLASSES):
+        return True
+    return any(
+        type_descends_from(type_id, root_id, types, memo)
+        for type_id in instance_types
+        for root_id in SUBCITY_CLASS_ROOTS
+    )
 
 
 def city_entity_ids(entities: dict[str, dict[str, Any]], types: dict[str, dict[str, Any]]) -> set[str]:
-    memo: dict[str, bool] = {}
+    memo: dict[tuple[str, str], bool] = {}
     city_ids = set()
     for candidate_id, entity in entities.items():
-        if any(type_descends_from_city(type_id, types, memo) for type_id in statement_entity_ids(entity, "P31")):
+        is_city = any(
+            type_descends_from(type_id, CITY_ITEM, types, memo)
+            for type_id in statement_entity_ids(entity, "P31")
+        )
+        if is_city and not entity_is_subcity(entity, types, memo):
             city_ids.add(candidate_id)
     return city_ids
 
@@ -421,6 +455,19 @@ def build_metadata(rows: list[dict[str, str]]) -> dict[str, Any]:
             "instance_of_item": "Q11707",
             "michelin_id_property": "P4160",
             "michelin_id_required": False,
+            "canonical_city": {
+                "hierarchy_property": "P131",
+                "city_class": CITY_ITEM,
+                "excluded_subcity_class_roots": [
+                    {"id": item_id, "name": name}
+                    for item_id, name in SUBCITY_CLASS_ROOTS.items()
+                ],
+                "excluded_exact_classes": [
+                    {"id": item_id, "name": name}
+                    for item_id, name in EXACT_SUBCITY_CLASSES.items()
+                ],
+                "fallbacks": [],
+            },
             "fallback_sources": [],
         },
         "counts": {

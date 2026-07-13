@@ -31,7 +31,7 @@ export default function AboutPage() {
               The query selects restaurant entities whose award received (<Code>P166</Code>) includes Michelin star (<Code>Q20824563</Code>). Michelin Restaurants ID (<Code>P4160</Code>) is optional.
             </InfoCard>
             <InfoCard icon={<MapPinOff />} title="Locations are never inferred">
-              A canonical city is the nearest location (<Code>P131</Code>) ancestor classified under city (<Code>Q515</Code>). If none exists, the record remains under “City not specified in Wikidata.”
+              A canonical city is the nearest location (<Code>P131</Code>) classified under city (<Code>Q515</Code>) after boroughs, wards, city districts, and neighborhoods are rejected. Resolution continues to a sourced parent city; if none exists, the record remains under “City not specified in Wikidata.”
             </InfoCard>
             <InfoCard icon={<Star />} title="No invented star tiers">
               Wikidata’s generic award item does not reliably encode a current one, two, or three-star tier. The site therefore uses the precise phrase “Michelin star award recorded in Wikidata.”
